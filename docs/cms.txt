@@ -1,0 +1,400 @@
+GCOM CMS operations
+
+Status and authority
+
+The human comparison pass was approved on 2026-10-14. Staging was exported and
+restored into the previously empty production dataset without replacing existing
+documents. Restored copy/assets match staging and published reads/builds passed.
+The project has private staging and production datasets; the GitHub repository
+is private and must remain private until the authorized 1.0 source release.
+Sanity credentials and the repository-scoped Actions credential are mode-600
+files outside source. CI uses a dedicated Viewer token expiring 2027-10-14.
+The production Studio is https://gcom-wtzkb2rs.sanity.studio/.
+Publication activation is controlled by SANITY_PUBLICATION_ENABLED and the
+production webhook. Keep both disabled while any required release checks fail.
+
+Publishing in Studio changes Sanity content. It does not confirm a successful
+website deployment. A delivered webhook only queues a workflow. A successful
+Pages deploy job and a check of the live four routes establish publication.
+CMS validation, Studio checks, browser checks or deployment failures preserve
+the existing Pages deployment. A failed release never substitutes fixture data.
+
+Install and local verification
+
+From the repository root, using Node 22:
+  npm ci
+  npm ci --prefix sanity
+  npm ci --prefix editor
+  npx playwright install --with-deps chromium
+  CONTENT_SOURCE=fixture npm run build
+  npm test
+  npm test --prefix editor
+  npx tsx --test sanity/*.test.ts
+  npm run format:check
+  npm run test:browser
+
+Fixture mode is for offline development and tests. CI rejects fixture syncs.
+content/fixture.json is the local reference; src/generated/site-content.json is
+the validated build snapshot. Never edit generated output as the content source.
+
+The root scripts are:
+  npm run sync:content: validate fixture or published Sanity content, then write
+    the snapshot atomically; CONTENT_SOURCE selects sanity or fixture.
+  npm run build: sync content, then run build:snapshot.
+  npm run build:snapshot: typecheck, generate HTML, Vite build and prerender from
+    the snapshot already on disk, without another CMS fetch.
+  npm run build:release: require Sanity content for a release build.
+  npm run dev: sync content before local development.
+  npm run seed:content: seed missing singleton documents in a non-production
+    dataset; existing published documents and drafts are skipped.
+  npm run sync:events: import Luma using settings.calendarUrl in the snapshot.
+  npm run test:browser: serve the final dist on 0.0.0.0 at an ephemeral port;
+    honor SITE_BASE; check four routes at desktop and mobile sizes, prerender,
+    assets, fonts.ready, loaded Nunito/Pixelify Sans, overflow, serious/critical
+    Axe findings, browser/hydration errors, absence of browser CMS requests,
+    keyboard menu/Escape focus, reduced motion and contact draft preservation.
+    Isolated Vite contact fixtures compile the same snapshot with missing and
+    mocked endpoints (400/413/429/500/200 with ok:false, malformed JSON and
+    a network failure); they never refetch CMS, alter dist or submit real messages.
+
+Sanity project, datasets and access
+
+An owner creates the Sanity project and explicit staging and production datasets
+in https://www.sanity.io/manage. Prefer private datasets; changing an existing
+dataset's visibility requires owner approval. The project ID is wtzkb2rs;
+use the explicit staging or production dataset. Install Studio dependencies separately under sanity/.
+
+Invite committee users by account through Sanity Manage project Members, using
+the sign-in method they will actually use. Give editors the Editor role when
+available, reviewers Viewer, and only the technical owner Administrator or
+Developer as needed. Editor, Developer and Contributor availability depends on
+the Sanity plan. If the plan lacks a suitable editing role, resolve access with
+the owner before inviting people; do not silently give all editors admin access.
+Contributor can draft but cannot publish. Viewer cannot edit. Remove departing
+committee access in Sanity. Studio's singleton UI is not an authorization layer;
+Sanity project roles and dataset permissions enforce access.
+
+Studio has six fixed documents, with identical _id and _type:
+  settings, navigation, home, about, team, contact
+Duplicate and delete actions are hidden and creation templates are restricted.
+Publish all six to staging; drafts are never used by the website build. Local
+Studio login uses each member's Sanity account, not a shared write token.
+
+Use SANITY_STUDIO_PROJECT_ID and SANITY_STUDIO_DATASET for Studio. Seeding uses
+SANITY_PROJECT_ID, SANITY_DATASET and SANITY_WRITE_TOKEN.
+Use SANITY_WRITE_TOKEN only in the server-side seed process; store it in a
+mode-600 secret file outside the repository and inject it without printing it.
+The seed refuses production and skips existing published and draft singletons.
+It uploads approved local artwork and existing public roster portraits, retains
+alternative text, then creates missing documents with createIfNotExists.
+
+Set the project and dataset explicitly for subsequent commands:
+  export SANITY_PROJECT_ID=wtzkb2rs
+  export SANITY_DATASET=staging
+Load the confirmed mode-600 token file without printing its contents:
+  read -r SANITY_WRITE_TOKEN < "$HOME/.claude/.secrets/gcom-sanity-token"
+  export SANITY_WRITE_TOKEN
+Seed and verify Studio:
+  npm run seed:content
+  SANITY_STUDIO_PROJECT_ID="$SANITY_PROJECT_ID" SANITY_STUDIO_DATASET=staging npm run typecheck --prefix sanity
+  SANITY_STUDIO_PROJECT_ID="$SANITY_PROJECT_ID" SANITY_STUDIO_DATASET=staging npm run build --prefix sanity
+  SANITY_STUDIO_PROJECT_ID="$SANITY_PROJECT_ID" SANITY_STUDIO_DATASET=staging npm run dev --prefix sanity
+
+Publish and verify staging, then load a read token securely (for local checks
+this confirmed token has read access; CI should use a separate read-only token):
+  read -r SANITY_READ_TOKEN < "$HOME/.claude/.secrets/gcom-sanity-token"
+  export SANITY_READ_TOKEN
+  CONTENT_SOURCE=sanity SANITY_DATASET=staging npm run sync:content
+  npm run sync:events
+  npm run build:snapshot
+  npm test
+  npm run format:check
+  npm run test:browser
+  npm run preview -- --port 4173
+  homelab serve 4173
+
+Open the raw tailnet IP returned by homelab serve for human review. Compare all
+four pages, typography, spacing, motion and images with the approved baseline.
+Verify staging content changes, a draft that does not appear, a publish that
+appears, invalid content that fails safely and restoration of a missing required
+singleton. Verify contact failure retains the draft. Record Studio access and
+browser/build evidence. Obtain explicit owner approval before enabling any
+production deployment or webhook; automated checks cannot grant that approval.
+
+Field ownership map
+
+Every fixture field is managed by its owning singleton below. Dot notation names
+fields; [] means each ordered array entry. Content owns text, links, image/alt
+values and ordering. CSS, route layout, decorative symbols and motion mechanics
+remain source-owned. Image src/alt fixture objects become Sanity image assets
+with alt, then validated media URLs in the snapshot. Empty alt is intentional
+for decoration; meaningful photos/social images need descriptive alternative
+text. Use approved artwork, retain attribution, and obtain consent for portraits.
+
+settings:
+  name -> site identity and Open Graph site_name.
+  brand.before/highlight/after -> Header/Footer brand wordmark.
+  fullName -> generated application-name metadata.
+  logo.src/alt -> Header/Footer logo and generated favicon.
+  membershipUrl -> all membership/Join links.
+  contactEmail -> ContactForm direct-email fallback.
+  calendarUrl -> Events calendar link and Luma importer destination.
+  artwork.hero/purple/green/yellow/coral/cross, each src/alt -> Mascots and
+    quest-card decoration. Other page images have their own page fields.
+
+navigation:
+  brandLabel -> Header accessible brand label.
+  menuOpen/menuClose -> mobile disclosure button.
+  label -> Header navigation accessible name.
+  skipLabel -> skip-to-content link.
+  links[].key/label/url -> Header route/current-page state and destinations.
+  joinLabel -> Header membership button.
+  footer.tagline/description/joinLabel -> Footer copy and membership link.
+  invitation.eyebrow/heading/highlight/text/action -> shared Join section.
+  motion.create/play/pauseLabel/playLabel -> Mascots scene text and motion button.
+
+home:
+  metadata.title/description/image.src/image.alt -> HTML title, description,
+    Open Graph and Twitter tags; canonical comes from SITE_ORIGIN/SITE_BASE.
+  hero.university/club/heading[]/description/joinLabel -> Home hero.
+  hero.explore.label/url -> Home secondary hero link.
+  divider[] -> Home decorative word sequence.
+  questsEyebrow/questsHeading -> Home quests section heading.
+  quests[].name/theme/label/text/action.label/action.url -> ordered quest cards,
+    fixed approved theme variants and links.
+  events.eyebrow/heading/calendarLabel/eventLabel -> Events headings/links.
+  events.emptyHeading/emptyText -> connected calendar with no upcoming events.
+  events.unconnectedHeading/unconnectedText -> calendar not configured.
+  events.note -> Events source/timezone note.
+  Event dates, titles, venues and registration URLs are Luma-owned, not CMS-owned.
+
+about:
+  metadata.title/description/image.src/image.alt -> About HTML/social metadata.
+  intro.eyebrow/title/lead -> About page introduction.
+  sections[].heading/text -> ordered About paragraphs.
+  action.label/url -> About team link.
+  activitiesLabel -> About activities accessible name.
+  activitiesHeading/image.src/image.alt -> About activities panel.
+  activities[].name/text -> ordered activity list.
+
+team:
+  metadata.title/description/image.src/image.alt -> Team HTML/social metadata.
+  intro.eyebrow/title/lead -> Team page introduction.
+  label -> committee section accessible name.
+  linksLabel -> per-member public-links accessible name suffix.
+  members[].id/name/role/photo.src/photo.alt/links[].label/links[].url -> ordered
+    public committee cards; photo is optional. No private email/profile fields.
+  emptyHeading/emptyText/image.src/image.alt -> empty committee state.
+
+contact:
+  metadata.title/description/image.src/image.alt -> Contact HTML/social metadata.
+  intro.eyebrow/title/lead -> Contact page introduction.
+  image.src/image.alt -> Contact sidebar artwork.
+  sidebar.heading/text/joinHeading/joinText/joinLabel -> sidebar copy/Join link.
+  form.heading/introduction/label/legend -> form headings/accessibility.
+  form.nameLabel/emailLabel/emailHelp/subjectLabel/optionalLabel/messageLabel/
+    messagePlaceholder/honeypotLabel -> input labels/help/placeholder.
+  form.sendLabel/sendingLabel/directPrompt/directLabel/defaultSubject -> submit,
+    email fallback and default email subject.
+  form.sending/unavailable/rateLimited/invalid/tooLarge/failed/success/unreachable
+    -> ContactForm delivery status messages; drafts remain on failure.
+  Form validation, request handling and recipients are server/source-owned.
+
+Environment and trust boundaries
+
+Server-side website sync reads SANITY_PROJECT_ID, SANITY_DATASET and optional
+SANITY_READ_TOKEN. A private dataset requires a least-privilege read token.
+These are not VITE_ or SANITY_STUDIO_ tokens. Read/write tokens never enter
+website JavaScript, Studio bundles, HTML, snapshots, logs or vault notes.
+Published CMS text/media and public profile fields do enter the static site;
+do not store contact submissions or private committee details there. Sanity
+image CDN assets are public-delivery resources, not a place for secret uploads.
+
+Studio project/dataset IDs are public routing identifiers. Studio build receives
+only SANITY_STUDIO_PROJECT_ID/DATASET, never the read/write tokens. Website browser
+code receives VITE_CONTACT_ENDPOINT, a public contact-service URL, never backend
+mail-provider or publishing credentials. Contact service recipient/security
+configuration remains in the existing editor backend's protected environment.
+The obsolete committee editor, PocketBase and GitHub roster publisher were
+retired after the approved Sanity comparison. The editor/ directory now retains
+the standalone contact server, fixed recipient, SMTP validation/rate limiting,
+non-root container and historical backup/restore tools. No historical data was
+deleted. The existing service/container name and port 8091 remain compatible;
+GET /health replaces the editor setup probe. Old editor routes return 404.
+The former public/data/team.json is seed/rollback input; Sanity team.members owns
+the public website roster after migration. Avoid treating both as live editors.
+
+GitHub Actions repository variables to review:
+  SANITY_PROJECT_ID: wtzkb2rs.
+  SANITY_DATASET: production for automatic release runs.
+  SANITY_PUBLICATION_ENABLED: unset or false until staging passes and approval.
+  SITE_ORIGIN: https://gcom.techtom.tech unless explicitly changed.
+  SITE_BASE: /, or an absolute directory path ending in /.
+  CONTACT_ENDPOINT: approved contact-service endpoint or blank for email fallback.
+GitHub Actions secrets:
+  SANITY_READ_TOKEN: read-only access needed by the chosen dataset.
+  LUMA_ICAL_URL: private calendar subscription feed.
+Legacy LUMA_CALENDAR_URL and CLUB_CONTACT_EMAIL no longer own website content;
+settings.calendarUrl/contactEmail in the validated CMS snapshot do.
+
+The workflow preserves push, manual and half-hour cron triggers. Automatic runs
+skip while migration publication is disabled. A human may explicitly validate
+staging without deploying:
+  gh workflow run pages.yml --repo kitsunies/gcom-website --ref main --field dataset=staging
+  gh run list --repo kitsunies/gcom-website --workflow pages.yml
+  gh run view RUN_ID --repo kitsunies/gcom-website --log-failed
+
+Manual dataset defaults to production so the exact webhook body below works.
+Before approval, even manual production validation cannot deploy. After approval,
+a manual production run on main can deploy, so use staging for continued tests.
+CI always uses CONTENT_SOURCE=sanity, fetches CMS once before event sync, checks
+format/root and contact-backend tests and Studio schema/seed
+tests/typecheck/build, builds that snapshot, then runs browsers
+before upload/deploy. Luma import failures use the last valid cached snapshot;
+without a dated previous snapshot they fail closed. Cache eviction can therefore
+block a release during a Luma outage. CMS failures do not fall back to fixtures.
+Deploy requires all three: SANITY_PUBLICATION_ENABLED == 'true', fixed
+refs/heads/main, and the selected dataset exactly production. Staging never
+deploys. The migration does not turn any repository variable on by itself.
+
+Reviewable publication webhook configuration, disabled until approval
+
+Create this only after staging verification and explicit owner approval. Review
+all values first; this file contains no token and creates nothing remotely.
+In Sanity Manage project API > Webhooks:
+  Name: GCOM production Pages publication
+  Dataset: production
+  Enabled: false initially; enable only after approval
+  Trigger on: create, update, delete
+  Trigger on drafts: false
+  Trigger on versions: false
+  HTTP method: POST
+  URL: https://api.github.com/repos/kitsunies/gcom-website/actions/workflows/pages.yml/dispatches
+  Filter (GROQ, including deletion/unpublish via before()):
+    !((coalesce(after()._id, before()._id)) in path("drafts.**")) && coalesce(after()._id, before()._id) in ["settings", "navigation", "home", "about", "team", "contact"]
+  Projection (GROQ): {"ref": "main"}
+  Resulting JSON body: {"ref":"main"}
+  HTTP headers:
+    Content-Type: application/json
+    Accept: application/vnd.github+json
+    Authorization: Bearer <fine-grained repository-only PAT>
+    X-GitHub-Api-Version: 2026-03-10
+
+Create a fine-grained GitHub PAT owned by the responsible repository maintainer,
+restricted to kitsunies/gcom-website with Actions: write and a managed expiry.
+Store its value only in the Sanity webhook Authorization header, never source,
+Studio environment, build snapshot or a shareable webhook configuration URL.
+Do not add workflow body parameters unsupported by workflow_dispatch. Omitting
+inputs uses the workflow's default production dataset; ref is fixed main.
+Webhook deletion/unpublish queues a build that fails if a required singleton is
+missing, preserving the live release. Restore and publish that singleton before
+retrying. Use Sanity attempts/message logs and GitHub Actions to trace failures.
+Rotate/revoke the PAT when ownership changes. A successful dispatch response,
+usually 204, proves acceptance only, not build or Pages deployment success.
+
+Backup, promotion and recovery
+
+Use authenticated Sanity CLI login from sanity/ with an authorized maintainer.
+Keep exports outside this public repository in protected storage, including
+assets and drafts. The CLI may exclude assets returning 401/403/404; inspect the
+export log, retain a known complete backup and verify restoration before relying
+on an export. Do not use --no-assets for recoverable image backups.
+Example after creating a mode-700 directory at $HOME/.claude/backups/gcom:
+  cd sanity
+  npx sanity login
+  SANITY_STUDIO_PROJECT_ID="$SANITY_PROJECT_ID" SANITY_STUDIO_DATASET=staging npx sanity datasets export staging "$HOME/.claude/backups/gcom/staging.tar.gz"
+  SANITY_STUDIO_PROJECT_ID="$SANITY_PROJECT_ID" SANITY_STUDIO_DATASET=production npx sanity datasets export production "$HOME/.claude/backups/gcom/production-before.tar.gz"
+
+Restore into a separate non-production dataset first:
+  SANITY_STUDIO_PROJECT_ID="$SANITY_PROJECT_ID" SANITY_STUDIO_DATASET=staging npx sanity datasets create recovery --visibility private
+  SANITY_STUDIO_PROJECT_ID="$SANITY_PROJECT_ID" SANITY_STUDIO_DATASET=staging npx sanity datasets import "$HOME/.claude/backups/gcom/staging.tar.gz" recovery
+Then run Studio and root CONTENT_SOURCE=sanity sync/build/browser verification
+against recovery. Do not delete the source dataset or assume imports remove extra
+documents. --missing preserves existing IDs; --replace replaces matching IDs.
+For production promotion/restoration, first export current production, review
+the selected backup and obtain explicit approval to replace its documents:
+  SANITY_STUDIO_PROJECT_ID="$SANITY_PROJECT_ID" SANITY_STUDIO_DATASET=production npx sanity datasets import "$HOME/.claude/backups/gcom/staging.tar.gz" production --replace
+The seed script intentionally cannot seed production. Promotion is a reviewed
+export/import operation, followed by all production build checks.
+
+If publication fails, inspect the failed Actions job, keep the current Pages
+release, fix missing/invalid published fields or read permissions, and dispatch
+again. If Luma fails without a cache, restore a known valid dated snapshot or
+wait for Luma recovery. If a bad release went live, disable publication/webhook,
+restore the approved published CMS content from a verified backup, validate
+staging, then obtain approval to release the restored production snapshot.
+Do not overwrite an old valid snapshot with malformed data or delete datasets.
+Preserve the contact service deployment and operator SMTP settings. Historical
+committee archives are offline recovery inputs; stop any old PocketBase process
+before taking an archive. The archive validator refuses active SQLite WAL files.
+
+Attribution and links
+
+Sanity schemas, GROQ queries and image handling adapted from Monash Association
+of Coding (MAC):
+  https://github.com/monashcoding/monashcoding-site/tree/main/sanity
+  https://github.com/monashcoding/monashcoding-site
+Preserve this attribution when extending the CMS adaptation. The approved GCOM
+design and supplied artwork remain unchanged. Pixelify Sans and Nunito are
+self-hosted; their OFL notices are copied into dist/licenses/ and must remain
+in releases.
+Club membership: https://clubs.msa.monash.edu/organisation/9329/
+Website: https://gcom.techtom.tech/
+Repository: https://github.com/kitsunies/gcom-website
+Sanity access/setup: https://www.sanity.io/manage
+
+Primary instructions verified through the local Firecrawl service:
+https://www.sanity.io/docs/content-lake/webhooks
+https://www.sanity.io/docs/developer-guides/filters-in-groq-powered-webhooks
+https://www.sanity.io/docs/user-guides/roles
+https://www.sanity.io/docs/cli-reference/dataset
+https://docs.github.com/en/rest/actions/workflows#create-a-workflow-dispatch-event
+
+Portraits use the uploaded image framing and the existing square CSS slot.
+Studio crop/hotspot controls are disabled for images; replace the upload to
+change its framing. Optional calendar, home-link and decorative-alt clearing
+projects to empty strings so normal Studio editing remains publishable.
+
+Verified migration staging status (2026-10-14)
+
+Project wtzkb2rs/staging has all six published singleton documents and approved
+assets. Authenticated snapshot/build, temporary draft exclusion (removed after
+the check), repeat seed preserving revisions, anonymous mutation HTTP403,
+website/Studio credential scans, root and repository-subpath browser checks,
+metadata escaping and field coverage passed. Main-content text and measured
+heading/card positions match the baseline at 1440px and 390px.
+Tailnet website preview: http://100.126.154.2:8772/
+Baseline preview: http://100.126.154.2:8766/
+Staging Studio preview: http://100.126.154.2:8773/
+The exact Studio origin is registered in project CORS with credentials enabled.
+Remove that temporary origin when the preview is retired. Studio sign-in and
+invited-collaborator role review require the owner.
+
+Root dependency audit has zero advisories. Pinned Sanity 6.18.0 tooling has 17
+transitive advisories (9 high, 8 moderate) in CLI/codegen/framework detection.
+Compatible npm audit fix did not resolve them; npm proposes a major Sanity
+downgrade. No unsupported overrides or forced downgrade were applied. Track
+upstream fixes before production activation.
+
+Verified: human comparison, Viewer read/write boundary and complete export
+restoration during promotion. The plan quota blocked a third recovery dataset;
+no dataset was deleted. Production had zero editorial documents before import.
+Real Luma feed/SMTP configuration and human committee invitations remain operator
+tasks. Webhook dispatch and production release are verified at activation.
+The comparison is approved; committee editing is retired, with contact delivery
+and historical recovery preserved. Production activation follows release checks.
+
+Production webhook template: sanity/webhook.json (disabled by default). Add the
+external Actions credential only to the remote Authorization header. Webhook ID
+846MuJxmS6TEaOaS is the configured production hook. The exact reviewed JSON
+filter is tested against published create/update/delete and draft/version cases.
+Backups from this migration live outside source under
+$HOME/.claude/backups/gcom/20261013T144257Z/. Exports include six editorial
+documents, eight image assets and fourteen image references; Sanity system
+documents are intentionally excluded by export, with raw inventories retained.
+
+Studio deployment uses production and pinned updates:
+  SANITY_STUDIO_PROJECT_ID=wtzkb2rs SANITY_STUDIO_DATASET=production npx sanity deploy --url gcom-wtzkb2rs --yes
+Run that command from sanity/ after securely loading SANITY_AUTH_TOKEN. Invite
+founders through Sanity Manage using their individual accounts. Anonymous
+updates and Viewer-token updates were denied with HTTP 403.

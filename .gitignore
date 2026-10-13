@@ -59,3 +59,10 @@ Thumbs.db
 *.swp
 *.swo
 *~
+
+# Generated public CMS snapshot (fixtures are committed separately)
+src/generated/
+sanity/node_modules/
+sanity/dist/
+
+sanity/.sanity/

@@ -1,0 +1,294 @@
+{
+  "settings": {
+    "name": "GCOM",
+    "brand": {
+      "before": "GC",
+      "highlight": "O",
+      "after": "M"
+    },
+    "fullName": "Monash University Game Development Club",
+    "logo": {
+      "src": "artwork/logo-original.png",
+      "alt": ""
+    },
+    "membershipUrl": "https://clubs.msa.monash.edu/organisation/9329/",
+    "contactEmail": "kitsunies@gmail.com",
+    "calendarUrl": "",
+    "artwork": {
+      "hero": {
+        "src": "artwork/hero-original-web.webp",
+        "alt": ""
+      },
+      "purple": {
+        "src": "artwork/purple-original-web.webp",
+        "alt": ""
+      },
+      "green": {
+        "src": "artwork/green-original-web.webp",
+        "alt": ""
+      },
+      "yellow": {
+        "src": "artwork/yellow-original-web.webp",
+        "alt": ""
+      },
+      "coral": {
+        "src": "artwork/coral-original-web.webp",
+        "alt": ""
+      },
+      "cross": {
+        "src": "artwork/cross-original-web.webp",
+        "alt": ""
+      }
+    }
+  },
+  "navigation": {
+    "brandLabel": "GCOM home",
+    "menuOpen": "Menu",
+    "menuClose": "Close",
+    "label": "Main navigation",
+    "skipLabel": "Skip to content",
+    "links": [
+      {
+        "key": "home",
+        "label": "Home",
+        "url": ""
+      },
+      {
+        "key": "events",
+        "label": "Events",
+        "url": "#events"
+      },
+      {
+        "key": "about",
+        "label": "About Us",
+        "url": "about/"
+      },
+      {
+        "key": "team",
+        "label": "Meet the Team",
+        "url": "team/"
+      },
+      {
+        "key": "contact",
+        "label": "Contact",
+        "url": "contact/"
+      }
+    ],
+    "joinLabel": "Join the Club",
+    "footer": {
+      "tagline": "Make games. Make friends.",
+      "description": "Monash University Game Development Club",
+      "joinLabel": "Join the Club"
+    },
+    "invitation": {
+      "eyebrow": "PLAYER TWO WANTED",
+      "heading": "Got an idea? ",
+      "highlight": "Find your party.",
+      "text": "There’s a place here for your first experiment, your next project and the people you’ll make it with.",
+      "action": "Join GCOM"
+    },
+    "motion": {
+      "create": "CREATE",
+      "play": "PLAY",
+      "pauseLabel": "Pause animations",
+      "playLabel": "Play animations"
+    }
+  },
+  "home": {
+    "metadata": {
+      "title": "GCOM | Make games. Make friends.",
+      "description": "Find your people and bring wild ideas to life with GCOM, the Monash University game development club.",
+      "image": {
+        "src": "artwork/banner.png",
+        "alt": "GCOM game development club"
+      }
+    },
+    "hero": {
+      "university": "MONASH UNIVERSITY",
+      "club": "GAME DEV CLUB",
+      "heading": ["MAKE GAMES.", "MAKE FRIENDS."],
+      "description": "From your first prototype to your next game jam, find your people and bring wild ideas to life.",
+      "joinLabel": "Join GCOM",
+      "explore": {
+        "label": "Explore Game Jams",
+        "url": "#quests"
+      }
+    },
+    "divider": ["CREATE", "COLLABORATE", "PLAY", "REPEAT"],
+    "questsEyebrow": "PICK YOUR ADVENTURE",
+    "questsHeading": "Your Next Quest",
+    "quests": [
+      {
+        "name": "Game Jams",
+        "theme": "purple",
+        "label": "BUILD SOMETHING WILD",
+        "text": "Find a team, try a new idea and turn a blank canvas into something playable.",
+        "action": {
+          "label": "Find a game jam",
+          "url": "#events"
+        }
+      },
+      {
+        "name": "Game Dev Workshops",
+        "theme": "green",
+        "label": "ADD TO YOUR TOOLKIT",
+        "text": "Explore code, art, design and more. Learn with other people who love making games.",
+        "action": {
+          "label": "Explore workshops",
+          "url": "#events"
+        }
+      },
+      {
+        "name": "Showcase Night",
+        "theme": "yellow",
+        "label": "LET IT PLAY",
+        "text": "See what the club has been building, share your experiments and celebrate the community.",
+        "action": {
+          "label": "Find a showcase",
+          "url": "#events"
+        }
+      }
+    ],
+    "events": {
+      "eyebrow": "SAVE YOUR SPOT",
+      "heading": "Events & Announcements",
+      "calendarLabel": "Open the Luma calendar",
+      "eventLabel": "View on Luma",
+      "emptyHeading": "The next quest is on its way.",
+      "emptyText": "No upcoming events are listed right now. Check the club calendar for the latest updates.",
+      "unconnectedHeading": "Our calendar is getting ready.",
+      "unconnectedText": "Once the club calendar is connected, upcoming game jams, workshops and showcases will appear here.",
+      "note": "Event details and registration live on Luma. Times are shown in Melbourne time."
+    }
+  },
+  "about": {
+    "metadata": {
+      "title": "About Us | GCOM",
+      "description": "Explore GCOM, a community for creating games, learning together and finding collaborators at Monash University.",
+      "image": {
+        "src": "artwork/banner.png",
+        "alt": "GCOM game development club"
+      }
+    },
+    "intro": {
+      "eyebrow": "A PLACE TO PRESS START",
+      "title": "About Us",
+      "lead": "We’re GCOM, the Monash University game development club. We bring people together to explore how games are made and create something of their own."
+    },
+    "sections": [
+      {
+        "heading": "Ideas are better together.",
+        "text": "Our mission is to make game development a shared experience: a place to learn, experiment and find collaborators."
+      },
+      {
+        "heading": "Bring your curiosity.",
+        "text": "You don’t need a finished game or years of experience to get involved. Whether you’re interested in code, art, music, storytelling or design, there’s something to explore."
+      }
+    ],
+    "action": {
+      "label": "Meet the Team",
+      "url": "team/"
+    },
+    "activitiesLabel": "Club activities",
+    "activitiesHeading": "What we make space for",
+    "image": {
+      "src": "artwork/green-original-web.webp",
+      "alt": ""
+    },
+    "activities": [
+      {
+        "name": "Game jams",
+        "text": "Make something with a team."
+      },
+      {
+        "name": "Workshops",
+        "text": "Learn tools and try new skills."
+      },
+      {
+        "name": "Collaboration",
+        "text": "Find people to build with."
+      },
+      {
+        "name": "Showcases",
+        "text": "Share what you’ve created."
+      }
+    ]
+  },
+  "team": {
+    "metadata": {
+      "title": "Meet the Team | GCOM",
+      "description": "Meet the committee behind GCOM, the Monash University game development club.",
+      "image": {
+        "src": "artwork/banner.png",
+        "alt": "GCOM game development club"
+      }
+    },
+    "intro": {
+      "eyebrow": "THE PEOPLE BEHIND THE PLAY",
+      "title": "Meet the Team",
+      "lead": "Meet the committee bringing GCOM’s activities and community together."
+    },
+    "label": "Current committee",
+    "linksLabel": "public links",
+    "members": [],
+    "emptyHeading": "The team roster is on its way.",
+    "emptyText": "Committee profiles will appear here once the roster has been approved and published.",
+    "image": {
+      "src": "artwork/purple-original-web.webp",
+      "alt": ""
+    }
+  },
+  "contact": {
+    "metadata": {
+      "title": "Contact | GCOM",
+      "description": "Get in touch with the GCOM committee about game development, club activities and collaboration.",
+      "image": {
+        "src": "artwork/banner.png",
+        "alt": "GCOM game development club"
+      }
+    },
+    "intro": {
+      "eyebrow": "LET’S CONNECT",
+      "title": "Contact",
+      "lead": "Have a question, an idea for a collaboration or something you’d like to share with the club?"
+    },
+    "image": {
+      "src": "artwork/yellow-original-web.webp",
+      "alt": ""
+    },
+    "sidebar": {
+      "heading": "Say hello.",
+      "text": "Game dev questions, club enquiries or an idea you can’t stop thinking about: we’d love to hear it.",
+      "joinHeading": "Ready to join?",
+      "joinText": "You can join directly through the Monash Student Association.",
+      "joinLabel": "Join the Club"
+    },
+    "form": {
+      "heading": "Send us a message.",
+      "introduction": "Tell us what’s on your mind. All fields except the subject are required.",
+      "label": "Contact GCOM",
+      "legend": "Your message to GCOM",
+      "nameLabel": "Your name",
+      "emailLabel": "Email address",
+      "emailHelp": "We’ll use your email to reply to this message.",
+      "subjectLabel": "Subject",
+      "optionalLabel": "(optional)",
+      "messageLabel": "Your message",
+      "messagePlaceholder": "Tell us a little about your question or idea…",
+      "honeypotLabel": "Leave this field empty",
+      "sendLabel": "Send message",
+      "sendingLabel": "Sending…",
+      "directPrompt": "Prefer email?",
+      "directLabel": "Email us directly",
+      "defaultSubject": "GCOM enquiry",
+      "sending": "Sending your message…",
+      "unavailable": "Message delivery is temporarily unavailable. You can send your message using the email link below.",
+      "rateLimited": "Too many messages in a short time. Please try again later, or email us directly.",
+      "invalid": "Please check your name, email, subject and message.",
+      "tooLarge": "Message is too large.",
+      "failed": "We couldn’t send your message right now. Your draft is still here. Try again, or use the email link below.",
+      "success": "Message sent. Thanks for getting in touch! We’ll reply to the email address you provided.",
+      "unreachable": "We couldn’t reach the message service. Your draft is still here. Try again, or use the email link below."
+    }
+  }
+}
