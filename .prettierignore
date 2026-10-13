@@ -1,0 +1,11 @@
+node_modules/
+dist/
+.build/
+public/artwork/
+package-lock.json
+editor/package-lock.json
+index.html
+about/index.html
+team/index.html
+contact/index.html
+src/generated/

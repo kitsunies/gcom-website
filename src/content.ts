@@ -2,7 +2,8 @@ export const membership = 'https://clubs.msa.monash.edu/organisation/9329/';
 export const base = import.meta.env.BASE_URL;
 export const local = (path = '') => `${base}${path}`;
 export const calendar = import.meta.env.VITE_CALENDAR_URL || '';
-export const contact = import.meta.env.VITE_CONTACT_EMAIL || 'kitsunies@gmail.com';
+export const contact =
+  import.meta.env.VITE_CONTACT_EMAIL || 'kitsunies@gmail.com';
 export const contactEndpoint = import.meta.env.VITE_CONTACT_ENDPOINT || '';
 export const composition = import.meta.env.VITE_COMPOSITION || 'reference';
 
