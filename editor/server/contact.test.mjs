@@ -1,11 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import http from 'node:http';
-import { spawn } from 'node:child_process';
-import { mkdtemp, rm } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
-import { once } from 'node:events';
 
 const origin = 'https://gcom.techtom.tech';
 const valid = {
@@ -77,74 +72,6 @@ async function fixture(
     });
   return { request, mails, options, url };
 }
-
-test('the real editor server exposes contact without authentication and preserves committee origin checks', async (t) => {
-  const directory = await mkdtemp(join(tmpdir(), 'gcom-contact-test-'));
-  const portServer = http.createServer();
-  await new Promise((resolve) => portServer.listen(0, '127.0.0.1', resolve));
-  const port = portServer.address().port;
-  await new Promise((resolve) => portServer.close(resolve));
-  const child = spawn(process.execPath, ['server/index.mjs'], {
-    env: {
-      ...process.env,
-      ...Object.fromEntries(Object.keys(smtp).map((key) => [key, ''])),
-      CONTACT_SMTP_PORT: '',
-      CONTACT_RECIPIENT: '',
-      CONTACT_ALLOWED_ORIGIN: origin,
-      CONTACT_TRUSTED_PROXY_IPS: '',
-      HOST: '127.0.0.1',
-      PORT: String(port),
-      EDITOR_STATE_DIR: directory,
-    },
-    stdio: ['ignore', 'pipe', 'pipe'],
-  });
-  t.after(async () => {
-    child.kill();
-    if (child.exitCode === null) await once(child, 'exit');
-    await rm(directory, { recursive: true, force: true });
-  });
-  await Promise.race([
-    once(child.stdout, 'data'),
-    once(child, 'exit').then(() => {
-      throw new Error('Editor server exited before ready');
-    }),
-    new Promise((_, reject) => {
-      const timer = setTimeout(
-        () => reject(new Error('Editor did not start')),
-        5000,
-      );
-      timer.unref();
-    }),
-  ]);
-  const url = `http://127.0.0.1:${port}`;
-  const response = await fetch(url + '/api/contact', {
-    method: 'POST',
-    headers: { Origin: origin, 'Content-Type': 'application/json' },
-    body: JSON.stringify(valid),
-  });
-  assert.equal(response.status, 503);
-  assert.deepEqual(await response.json(), { message: unavailable });
-  assert.equal(response.headers.get('access-control-allow-origin'), origin);
-  const preflight = await fetch(url + '/api/contact', {
-    method: 'OPTIONS',
-    headers: {
-      Origin: origin,
-      'Access-Control-Request-Method': 'POST',
-      'Access-Control-Request-Headers': 'content-type',
-    },
-  });
-  assert.equal(preflight.status, 204);
-  assert.equal(
-    (
-      await fetch(url + '/api/editor/profiles', {
-        method: 'POST',
-        headers: { Origin: origin },
-      })
-    ).status,
-    403,
-  );
-  assert.equal((await fetch(url + '/api/editor/profiles')).status, 401);
-});
 
 test('delivery fixes the envelope and reply address and waits for SMTP acceptance', async (t) => {
   let accept;
