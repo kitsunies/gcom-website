@@ -53,7 +53,7 @@ jobs:
         run: npm run sync:content
       - run: npm run format:check
       - run: npm test
-      - name: Test retained editor and contact backend
+      - name: Test contact backend
         working-directory: editor
         run: npm test
       - name: Test Studio schemas and seed safeguards

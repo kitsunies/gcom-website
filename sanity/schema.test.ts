@@ -70,3 +70,53 @@ test('link validation permits code routes and public HTTPS only', () => {
   ])
     assert(!validHttps(url));
 });
+
+test('publication webhook excludes drafts and versions and fixes the dispatch branch', async () => {
+  const { parse, evaluate } = await import('groq-js');
+  const { default: hook } = await import('./webhook.json');
+  const expression = parse(hook.rule.filter, { mode: 'delta' });
+  for (const id of [
+    'settings',
+    'navigation',
+    'home',
+    'about',
+    'team',
+    'contact',
+  ]) {
+    for (const [before, after] of [
+      [null, { _id: id }],
+      [{ _id: id }, { _id: id }],
+      [{ _id: id }, null],
+    ]) {
+      assert.equal(
+        await (await evaluate(expression, { before, after })).get(),
+        true,
+      );
+    }
+  }
+  for (const id of [
+    'drafts.home',
+    'drafts.settings',
+    'versions.release.home',
+    'unrelated',
+  ]) {
+    assert.equal(
+      await (
+        await evaluate(expression, { before: null, after: { _id: id } })
+      ).get(),
+      false,
+    );
+  }
+  assert.deepEqual(
+    await (
+      await evaluate(parse(hook.rule.projection, { mode: 'delta' }))
+    ).get(),
+    { ref: 'main' },
+  );
+  assert.equal(hook.includeDrafts, false);
+  assert.equal(hook.includeAllVersions, false);
+  assert(
+    !('Authorization' in hook.headers),
+    'Webhook credentials must remain outside source',
+  );
+});

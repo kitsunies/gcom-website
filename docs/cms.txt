@@ -2,18 +2,16 @@ GCOM CMS operations
 
 Status and authority
 
-This migration is prepared for staging verification. SANITY_PUBLICATION_ENABLED
-must remain unset or false, and the Sanity publication webhook must remain
-disabled, until staging Studio, published-content builds and the human review
-have passed and the owner explicitly approves production publication.
-Sanity credentials are stored outside source in a mode-600 secret file. Live
-staging was seeded and built. Published reads, draft exclusion, seed rerun,
-anonymous write denial and secret scans passed. Human Studio review, collaborator
-role checks and production approval remain pending. Fixture checks alone do not
-satisfy the staging gate.
-No remote webhook, repository setting, privacy change, deployment enablement or
-push is part of local setup. The existing repository is public: never commit
-credentials or treat repository privacy as a secret boundary.
+The human comparison pass was approved on 2026-10-14. Staging was exported and
+restored into the previously empty production dataset without replacing existing
+documents. Restored copy/assets match staging and published reads/builds passed.
+The project has private staging and production datasets; the GitHub repository
+is private and must remain private until the authorized 1.0 source release.
+Sanity credentials and the repository-scoped Actions credential are mode-600
+files outside source. CI uses a dedicated Viewer token expiring 2027-10-14.
+The production Studio is https://gcom-wtzkb2rs.sanity.studio/.
+Publication activation is controlled by SANITY_PUBLICATION_ENABLED and the
+production webhook. Keep both disabled while any required release checks fail.
 
 Publishing in Studio changes Sanity content. It does not confirm a successful
 website deployment. A delivered webhook only queues a workflow. A successful
@@ -217,8 +215,12 @@ only SANITY_STUDIO_PROJECT_ID/DATASET, never the read/write tokens. Website brow
 code receives VITE_CONTACT_ENDPOINT, a public contact-service URL, never backend
 mail-provider or publishing credentials. Contact service recipient/security
 configuration remains in the existing editor backend's protected environment.
-Retain the existing contact/editor service until live Sanity has been verified;
-do not remove its authentication, data or deployment during this migration.
+The obsolete committee editor, PocketBase and GitHub roster publisher were
+retired after the approved Sanity comparison. The editor/ directory now retains
+the standalone contact server, fixed recipient, SMTP validation/rate limiting,
+non-root container and historical backup/restore tools. No historical data was
+deleted. The existing service/container name and port 8091 remain compatible;
+GET /health replaces the editor setup probe. Old editor routes return 404.
 The former public/data/team.json is seed/rollback input; Sanity team.members owns
 the public website roster after migration. Avoid treating both as live editors.
 
@@ -246,7 +248,7 @@ Manual dataset defaults to production so the exact webhook body below works.
 Before approval, even manual production validation cannot deploy. After approval,
 a manual production run on main can deploy, so use staging for continued tests.
 CI always uses CONTENT_SOURCE=sanity, fetches CMS once before event sync, checks
-format/root and retained editor/contact tests and Studio schema/seed
+format/root and contact-backend tests and Studio schema/seed
 tests/typecheck/build, builds that snapshot, then runs browsers
 before upload/deploy. Luma import failures use the last valid cached snapshot;
 without a dated previous snapshot they fail closed. Cache eviction can therefore
@@ -322,8 +324,9 @@ wait for Luma recovery. If a bad release went live, disable publication/webhook,
 restore the approved published CMS content from a verified backup, validate
 staging, then obtain approval to release the restored production snapshot.
 Do not overwrite an old valid snapshot with malformed data or delete datasets.
-Keep the old editor/contact deployment until live Sanity and contact behavior
-are verified; preserve its existing backup/restore process during the transition.
+Preserve the contact service deployment and operator SMTP settings. Historical
+committee archives are offline recovery inputs; stop any old PocketBase process
+before taking an archive. The archive validator refuses active SQLite WAL files.
 
 Attribution and links
 
@@ -373,7 +376,25 @@ Compatible npm audit fix did not resolve them; npm proposes a major Sanity
 downgrade. No unsupported overrides or forced downgrade were applied. Track
 upstream fixes before production activation.
 
-Pending: human comparison and Studio editing review, collaborator role checks,
-real Luma feed/SMTP checks, GitHub scoped webhook credential and live dispatch,
-backup restore drill, production approval and obsolete committee-code removal.
-Publication remains disabled and the existing contact/editor service is retained.
+Verified: human comparison, Viewer read/write boundary and complete export
+restoration during promotion. The plan quota blocked a third recovery dataset;
+no dataset was deleted. Production had zero editorial documents before import.
+Real Luma feed/SMTP configuration and human committee invitations remain operator
+tasks. Webhook dispatch and production release are verified at activation.
+The comparison is approved; committee editing is retired, with contact delivery
+and historical recovery preserved. Production activation follows release checks.
+
+Production webhook template: sanity/webhook.json (disabled by default). Add the
+external Actions credential only to the remote Authorization header. Webhook ID
+846MuJxmS6TEaOaS is the configured production hook. The exact reviewed JSON
+filter is tested against published create/update/delete and draft/version cases.
+Backups from this migration live outside source under
+$HOME/.claude/backups/gcom/20261013T144257Z/. Exports include six editorial
+documents, eight image assets and fourteen image references; Sanity system
+documents are intentionally excluded by export, with raw inventories retained.
+
+Studio deployment uses production and pinned updates:
+  SANITY_STUDIO_PROJECT_ID=wtzkb2rs SANITY_STUDIO_DATASET=production npx sanity deploy --url gcom-wtzkb2rs --yes
+Run that command from sanity/ after securely loading SANITY_AUTH_TOKEN. Invite
+founders through Sanity Manage using their individual accounts. Anonymous
+updates and Viewer-token updates were denied with HTTP 403.
