@@ -1,0 +1,6 @@
+node_modules
+dist
+pb_data
+state
+.env
+*.log

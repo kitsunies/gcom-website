@@ -1,0 +1,2 @@
+# Set absolute external config paths in an operator-owned wrapper, then install in host crontab.
+0 3 * * * /absolute/operator/gcom-backup-wrapper.sh
