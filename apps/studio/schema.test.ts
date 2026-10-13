@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import fixture from '../content/fixture.json';
+import fixture from '../web/content/fixture.json';
 import { schemaTypes, validHttps, validInternal } from './schema';
 
 test('Studio fields exactly match the canonical fixture', () => {

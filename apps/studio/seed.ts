@@ -5,10 +5,10 @@ import { basename, dirname, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { apiVersion } from './environment';
 import { singletonTypes } from './singletons';
-import { validateRoster } from '../scripts/validate-content';
-import { validateSiteContent } from '../scripts/site-content';
+import { validateRoster } from '../web/scripts/validate-content';
+import { validateSiteContent } from '../web/scripts/site-content';
 
-const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+const root = resolve(dirname(fileURLToPath(import.meta.url)), '../web');
 type SeedDocument = Record<string, unknown> & { _id: string; _type: string };
 export type SeedClient = {
   getDocuments(ids: string[]): Promise<(Record<string, unknown> | null)[]>;
@@ -192,7 +192,7 @@ async function main() {
     token,
     'Set SANITY_WRITE_TOKEN to a token with write access to the chosen non-production dataset.',
   );
-  // Resolve the root dependency so this script runs with the website's pinned client.
+  // Use the website's pinned client for seeding.
   const { createClient } = createRequire(join(root, 'package.json'))(
     '@sanity/client',
   );

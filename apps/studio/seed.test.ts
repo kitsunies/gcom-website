@@ -1,10 +1,10 @@
-import { siteQuery, validateSiteContent } from '../scripts/site-content';
+import { siteQuery, validateSiteContent } from '../web/scripts/site-content';
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { seedContent, type SeedClient } from './seed';
 import { singletonTypes } from './singletons';
 import { studioEnvironment } from './environment';
-import fixture from '../content/fixture.json';
+import fixture from '../web/content/fixture.json';
 import { createSchema } from 'sanity';
 import { validateDocument } from '@sanity/validation';
 import { createClient } from '@sanity/client';

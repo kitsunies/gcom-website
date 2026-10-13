@@ -2,7 +2,7 @@ name: Public website
 on:
   push:
     branches: [main, master]
-    paths-ignore: ['editor/**']
+    paths-ignore: ['apps/contact/**']
   workflow_dispatch:
     inputs:
       dataset:
@@ -36,43 +36,32 @@ jobs:
         with:
           node-version: '22'
           cache: npm
-          cache-dependency-path: |
-            package-lock.json
-            sanity/package-lock.json
+          cache-dependency-path: package-lock.json
       - id: dataset
         name: Record selected dataset
         run: echo "name=$SANITY_DATASET" >> "$GITHUB_OUTPUT"
       - run: npm ci
-      - run: npm ci
-        working-directory: sanity
-      - run: npm ci
-        working-directory: editor
       - name: Fetch and validate published CMS content once
         env:
           SANITY_READ_TOKEN: ${{ secrets.SANITY_READ_TOKEN }}
         run: npm run sync:content
       - run: npm run format:check
       - run: npm test
-      - name: Test contact backend
-        working-directory: editor
-        run: npm test
-      - name: Test Studio schemas and seed safeguards
-        run: npx tsx --test sanity/*.test.ts
       - name: Typecheck Studio
-        working-directory: sanity
+        working-directory: apps/studio
         env:
           SANITY_STUDIO_PROJECT_ID: ${{ env.SANITY_PROJECT_ID }}
           SANITY_STUDIO_DATASET: ${{ env.SANITY_DATASET }}
         run: npm run typecheck
       - name: Build Studio
-        working-directory: sanity
+        working-directory: apps/studio
         env:
           SANITY_STUDIO_PROJECT_ID: ${{ env.SANITY_PROJECT_ID }}
           SANITY_STUDIO_DATASET: ${{ env.SANITY_DATASET }}
         run: npm run build
       - uses: actions/cache@v4
         with:
-          path: public/data/events.json
+          path: apps/web/public/data/events.json
           key: gcom-calendar-v1-${{ github.run_id }}-${{ github.run_attempt }}
           restore-keys: gcom-calendar-v1-
       - name: Import published club events using the CMS calendar destination
@@ -86,17 +75,17 @@ jobs:
         run: echo '::warning::Calendar sync failed. This release uses the last valid snapshot.'
       - name: Require a previous snapshot on sync failure
         if: steps.calendar.outcome == 'failure'
-        run: node -e 'if (!require("./public/data/events.json").updatedAt) throw new Error("No previous calendar snapshot is available. Preserve the existing release.")'
+        run: node -e 'if (!require("./apps/web/public/data/events.json").updatedAt) throw new Error("No previous calendar snapshot is available. Preserve the existing release.")'
       - name: Build the validated snapshot without fetching CMS again
         run: npm run build:snapshot
       - run: npx playwright install --with-deps chromium
       - run: npm run test:browser
       - name: Custom domain
         if: env.SITE_BASE == '/'
-        run: node -e 'require("node:fs").writeFileSync("dist/CNAME", new URL(process.env.SITE_ORIGIN).hostname + "\n")'
+        run: node -e 'require("node:fs").writeFileSync("apps/web/dist/CNAME", new URL(process.env.SITE_ORIGIN).hostname + "\n")'
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: dist
+          path: apps/web/dist
   deploy:
     needs: build
     if: vars.SANITY_PUBLICATION_ENABLED == 'true' && github.ref == 'refs/heads/main' && needs.build.outputs.dataset == 'production'
