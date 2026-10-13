@@ -9,3 +9,5 @@ about/index.html
 team/index.html
 contact/index.html
 src/generated/
+sanity/.sanity/
+sanity/package-lock.json
