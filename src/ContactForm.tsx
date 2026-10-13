@@ -1,7 +1,8 @@
 import { useRef, useState, type FormEvent } from 'react';
-import { contact, contactEndpoint } from './content';
+import { content, contact, contactEndpoint } from './content';
 
 export function ContactForm() {
+  const copy = content.contact.form;
   const [status, setStatus] = useState<
     'idle' | 'sending' | 'success' | 'error'
   >('idle');
@@ -18,16 +19,13 @@ export function ContactForm() {
       string
     >;
     setEmailLink(
-      `mailto:${contact}?subject=${encodeURIComponent(values.subject || 'GCOM enquiry')}&body=${encodeURIComponent(`${values.message}\n\nFrom: ${values.name}\nReply to: ${values.email}`)}`,
+      `mailto:${contact}?subject=${encodeURIComponent(values.subject || copy.defaultSubject)}&body=${encodeURIComponent(`${values.message}\n\nFrom: ${values.name}\nReply to: ${values.email}`)}`,
     );
     sending.current = true;
     setStatus('sending');
-    setFeedback('Sending your message…');
+    setFeedback(copy.sending);
     try {
-      if (!contactEndpoint)
-        throw new Error(
-          'Message delivery is temporarily unavailable. You can send your message using the email link below.',
-        );
+      if (!contactEndpoint) throw new Error(copy.unavailable);
       const response = await fetch(contactEndpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -39,17 +37,16 @@ export function ContactForm() {
       if (!response.ok || result?.ok !== true) {
         const message =
           response.status === 429
-            ? 'Too many messages in a short time. Please try again later, or email us directly.'
-            : [400, 413].includes(response.status) &&
-                typeof result?.message === 'string'
-              ? result.message
-              : 'We couldn’t send your message right now. Your draft is still here. Try again, or use the email link below.';
+            ? copy.rateLimited
+            : response.status === 400
+              ? copy.invalid
+              : response.status === 413
+                ? copy.tooLarge
+                : copy.failed;
         throw new Error(message);
       }
       setStatus('success');
-      setFeedback(
-        'Message sent. Thanks for getting in touch! We’ll reply to the email address you provided.',
-      );
+      setFeedback(copy.success);
       form.reset();
       setEmailLink(`mailto:${contact}`);
     } catch (error) {
@@ -59,7 +56,7 @@ export function ContactForm() {
           error.name !== 'TypeError' &&
           error.name !== 'TimeoutError'
           ? error.message
-          : 'We couldn’t reach the message service. Your draft is still here. Try again, or use the email link below.',
+          : copy.unreachable,
       );
     } finally {
       sending.current = false;
@@ -68,20 +65,18 @@ export function ContactForm() {
   }
   return (
     <div className="contact-form-panel">
-      <h2>Send us a message.</h2>
-      <p className="form-introduction">
-        Tell us what’s on your mind. All fields except the subject are required.
-      </p>
+      <h2>{copy.heading}</h2>
+      <p className="form-introduction">{copy.introduction}</p>
       <form
         onSubmit={submit}
-        aria-label="Contact GCOM"
+        aria-label={copy.label}
         aria-busy={status === 'sending'}
       >
         <fieldset disabled={status === 'sending'}>
-          <legend className="sr-only">Your message to GCOM</legend>
+          <legend className="sr-only">{copy.legend}</legend>
           <div className="form-row">
             <label htmlFor="contact-name">
-              Your name
+              {copy.nameLabel}
               <input
                 id="contact-name"
                 name="name"
@@ -92,7 +87,7 @@ export function ContactForm() {
               />
             </label>
             <label htmlFor="contact-email">
-              Email address
+              {copy.emailLabel}
               <input
                 id="contact-email"
                 name="email"
@@ -105,10 +100,11 @@ export function ContactForm() {
             </label>
           </div>
           <p className="field-help" id="contact-email-help">
-            We’ll use your email to reply to this message.
+            {copy.emailHelp}
           </p>
           <label htmlFor="contact-subject">
-            Subject <span className="optional-label">(optional)</span>
+            {copy.subjectLabel}{' '}
+            <span className="optional-label">{copy.optionalLabel}</span>
             <input
               id="contact-subject"
               name="subject"
@@ -117,7 +113,7 @@ export function ContactForm() {
             />
           </label>
           <label htmlFor="contact-message">
-            Your message
+            {copy.messageLabel}
             <textarea
               id="contact-message"
               name="message"
@@ -125,12 +121,12 @@ export function ContactForm() {
               minLength={10}
               maxLength={5000}
               rows={6}
-              placeholder="Tell us a little about your question or idea…"
+              placeholder={copy.messagePlaceholder}
             />
           </label>
           <div className="honeypot" aria-hidden="true">
             <label htmlFor="contact-website">
-              Leave this field empty
+              {copy.honeypotLabel}
               <input
                 id="contact-website"
                 name="website"
@@ -141,7 +137,7 @@ export function ContactForm() {
             </label>
           </div>
           <button className="button" type="submit">
-            {status === 'sending' ? 'Sending…' : 'Send message'}{' '}
+            {status === 'sending' ? copy.sendingLabel : copy.sendLabel}{' '}
             <span aria-hidden="true">→</span>
           </button>
         </fieldset>
@@ -157,9 +153,9 @@ export function ContactForm() {
         ) : null}
       </form>
       <p className="direct-email">
-        Prefer email?{' '}
+        {copy.directPrompt}{' '}
         <a href={emailLink}>
-          Email us directly <span aria-hidden="true">↗</span>
+          {copy.directLabel} <span aria-hidden="true">↗</span>
         </a>
       </p>
     </div>

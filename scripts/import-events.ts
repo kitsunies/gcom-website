@@ -2,6 +2,7 @@ import { readFile, rename, writeFile } from 'node:fs/promises';
 import { importCalendar } from './events';
 import { safeHttps, validateEvents } from './validate-content';
 import { loadEnv } from 'vite';
+import { snapshotFile, validateSiteContent } from './site-content';
 
 export async function syncEvents(
   feed: string,
@@ -47,8 +48,10 @@ if (process.argv[1]?.endsWith('import-events.ts')) {
     console.log('Calendar feed is unset; retaining the current snapshot.');
   else {
     try {
+      const content: unknown = JSON.parse(await readFile(snapshotFile, 'utf8'));
+      validateSiteContent(content);
       console.log(
-        `Imported ${await syncEvents(env.LUMA_ICAL_URL, env.VITE_CALENDAR_URL || '')} occurrences.`,
+        `Imported ${await syncEvents(env.LUMA_ICAL_URL, content.settings.calendarUrl)} occurrences.`,
       );
     } catch (error) {
       console.error(

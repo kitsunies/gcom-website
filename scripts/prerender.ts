@@ -1,3 +1,4 @@
+import { pagePaths } from './page-metadata';
 import {
   readFile,
   writeFile,
@@ -15,7 +16,7 @@ const { render } = await import(
 const env = { ...loadEnv('production', process.cwd(), ''), ...process.env };
 const origin = env.SITE_ORIGIN || 'https://gcom.techtom.tech';
 const base = env.SITE_BASE || '/';
-const paths = { home: '', about: 'about/', team: 'team/', contact: 'contact/' };
+const paths = pagePaths;
 const assets = await readdir('dist/assets');
 const fonts = ['pixelify-sans-latin-700-normal-', 'nunito-latin-800-normal-']
   .map((prefix) => {
