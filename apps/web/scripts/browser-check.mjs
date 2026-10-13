@@ -56,7 +56,7 @@ let browser;
 const temporary = [];
 try {
   browser = await chromium.launch({ headless: true });
-  const studio = await serve('sanity/dist', '/');
+  const studio = await serve('../studio/dist', '/');
   const studioPage = await browser.newPage();
   try {
     // Test anonymous startup without granting each ephemeral origin project CORS access.
@@ -244,7 +244,16 @@ try {
     const context = await browser.newContext();
     try {
       for (const status of endpoint
-        ? [400, 413, 429, 500, 200, 'malformed JSON', 'network failure']
+        ? [
+            400,
+            413,
+            429,
+            500,
+            200,
+            'malformed JSON',
+            'network failure',
+            'success',
+          ]
         : [null]) {
         const page = await context.newPage();
         const errors = [];
@@ -270,7 +279,7 @@ try {
               status === 'malformed JSON'
                 ? '{'
                 : JSON.stringify({
-                    ok: false,
+                    ok: status === 'success',
                     message:
                       status === 413
                         ? 'Message is too large.'
@@ -288,6 +297,32 @@ try {
         for (const [name, value] of Object.entries(draft))
           await page.locator(`[name="${name}"]`).fill(value);
         await page.locator('form button[type="submit"]').click();
+        if (status === 'success') {
+          const notice = page.locator('.form-feedback.success[role="status"]');
+          await notice.waitFor();
+          assert.equal(
+            await notice.textContent(),
+            snapshot.contact.form.success,
+          );
+          for (const name of Object.keys(draft))
+            assert.equal(
+              await page.locator(`[name="${name}"]`).inputValue(),
+              '',
+            );
+          await page.waitForFunction(
+            () => document.activeElement?.getAttribute('role') === 'status',
+          );
+          assert.equal(await page.locator('fieldset').isDisabled(), false);
+          assert.equal(
+            await page.locator('.direct-email a').getAttribute('href'),
+            `mailto:${snapshot.settings.contactEmail}`,
+          );
+          assert.equal(calls, 1);
+          assert.deepEqual(errors, []);
+          console.log('Contact success: form reset, feedback and focus passed');
+          await page.close();
+          continue;
+        }
         const alert = page.getByRole('alert');
         await alert.waitFor();
         const message =

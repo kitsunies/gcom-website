@@ -55,6 +55,9 @@ await writeFile(
 await mkdir('dist/licenses', { recursive: true });
 for (const font of ['nunito', 'pixelify-sans'])
   await copyFile(
-    `node_modules/@fontsource/${font}/LICENSE`,
+    new URL(
+      './LICENSE',
+      import.meta.resolve(`@fontsource/${font}/package.json`),
+    ),
     `dist/licenses/${font}.txt`,
   );
