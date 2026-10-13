@@ -24,15 +24,15 @@ const types = {
   '.woff2': 'font/woff2',
   '.svg': 'image/svg+xml',
 };
-async function serve(directory) {
+async function serve(directory, mountBase = base) {
   const root = resolve(directory);
   const server = createServer(async (request, response) => {
     try {
       const path = decodeURIComponent(
         new URL(request.url, 'http://test').pathname,
       );
-      assert.ok(path.startsWith(base));
-      let file = resolve(root, path.slice(base.length));
+      assert.ok(path.startsWith(mountBase));
+      let file = resolve(root, path.slice(mountBase.length));
       assert.ok(file === root || file.startsWith(root + sep));
       if ((await stat(file)).isDirectory()) file = resolve(file, 'index.html');
       response.writeHead(200, {
@@ -46,7 +46,7 @@ async function serve(directory) {
   });
   await new Promise((done) => server.listen(0, '0.0.0.0', done));
   return {
-    url: `http://127.0.0.1:${server.address().port}${base}`,
+    url: `http://127.0.0.1:${server.address().port}${mountBase}`,
     close: () => new Promise((done) => server.close(done)),
   };
 }
@@ -56,6 +56,31 @@ let browser;
 const temporary = [];
 try {
   browser = await chromium.launch({ headless: true });
+  const studio = await serve('sanity/dist', '/');
+  const studioPage = await browser.newPage();
+  try {
+    // Test anonymous startup without granting each ephemeral origin project CORS access.
+    await studioPage.route('https://*.api.sanity.io/**/users/me?*', (route) =>
+      route.fulfill({
+        status: 401,
+        contentType: 'application/json',
+        body: JSON.stringify({ error: 'Unauthorized' }),
+      }),
+    );
+    await studioPage.goto(studio.url, { waitUntil: 'networkidle' });
+    await studioPage.waitForFunction(() =>
+      /Choose login provider|Uncaught error|Set SANITY_STUDIO_/i.test(
+        document.body.innerText,
+      ),
+    );
+    const text = await studioPage.locator('body').innerText();
+    assert.doesNotMatch(text, /Uncaught error|Set SANITY_STUDIO_/);
+    assert.match(text, /Choose login provider/i);
+    console.log('Built Studio: browser configuration and sign-in passed');
+  } finally {
+    await studioPage.close();
+    await studio.close();
+  }
   for (const viewport of [
     { width: 1440, height: 1000 },
     { width: 390, height: 844 },

@@ -31,6 +31,7 @@ From the repository root, using Node 22:
   npm test --prefix editor
   npx tsx --test sanity/*.test.ts
   npm run format:check
+  SANITY_STUDIO_PROJECT_ID=wtzkb2rs SANITY_STUDIO_DATASET=staging npm run build --prefix sanity
   npm run test:browser
 
 Fixture mode is for offline development and tests. CI rejects fixture syncs.
@@ -49,6 +50,7 @@ The root scripts are:
     dataset; existing published documents and drafts are skipped.
   npm run sync:events: import Luma using settings.calendarUrl in the snapshot.
   npm run test:browser: serve the final dist on 0.0.0.0 at an ephemeral port;
+    verify the built Studio loads its browser configuration and sign-in screen;
     honor SITE_BASE; check four routes at desktop and mobile sizes, prerender,
     assets, fonts.ready, loaded Nunito/Pixelify Sans, overflow, serious/critical
     Axe findings, browser/hydration errors, absence of browser CMS requests,

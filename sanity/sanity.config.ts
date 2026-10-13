@@ -7,7 +7,10 @@ const singletons = new Set<string>(singletonTypes);
 export default defineConfig({
   name: 'gcom',
   title: 'GCOM Content',
-  ...studioEnvironment(process.env),
+  ...studioEnvironment({
+    SANITY_STUDIO_PROJECT_ID: process.env.SANITY_STUDIO_PROJECT_ID,
+    SANITY_STUDIO_DATASET: process.env.SANITY_STUDIO_DATASET,
+  }),
   plugins: [
     structureTool({
       structure: (S) =>
