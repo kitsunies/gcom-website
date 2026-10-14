@@ -1,61 +1,68 @@
 # GCOM website
 
-The club website stays static on GitHub Pages. Sanity manages page content and the committee roster; a small Cloudflare Worker sends contact messages through Resend.
+The website for GCOM, the Monash University Game Development Club. Static pages on GitHub Pages, content managed in Sanity, and a separate service for contact email.
 
-| App            | Purpose                                                 |
-| -------------- | ------------------------------------------------------- |
-| `apps/web`     | React/Vite website, content fixtures and browser checks |
-| `apps/studio`  | Sanity Studio, schemas and seed tools                   |
-| `apps/contact` | Contact Worker; no server or database to manage         |
+## Stack
 
-Use Node.js 22.18 or newer and install all workspaces once:
+| Part          | Technology                       | Location                            |
+| ------------- | -------------------------------- | ----------------------------------- |
+| Website       | React, TypeScript, Vite and CSS  | `apps/web`                          |
+| CMS           | Sanity Studio                    | `apps/studio`                       |
+| Contact email | Cloudflare Worker and Resend     | `apps/contact`                      |
+| Hosting       | GitHub Pages and GitHub Actions  | `.github/workflows`                 |
+| Events        | Luma calendar imported into JSON | `apps/web/scripts/import-events.ts` |
+
+Sanity manages page copy, navigation, images, membership links and the committee roster. Builds fetch published content, validate it and bake it into prerendered HTML and the React bundle. Visitors read the static site without querying the CMS. Events are imported separately from Luma.
+
+The contact form sends requests to the Worker, which validates submissions, limits spam and delivers email through Resend. Messages never go into Sanity. A direct-email fallback remains available.
+
+## Run locally
+
+Use Node.js **22.18 or newer** and npm. From the repository root:
 
 ```sh
 npm ci
 npm run dev
 ```
 
-Local development uses fixture content. Copy `apps/web/.env.example` to `apps/web/.env` to configure the website; never put provider or CMS credentials in `VITE_` variables. Generated HTML, content snapshots and build output are ignored.
+Local development uses committed fixtures and needs no CMS credentials. Copy [apps/web/.env.example](apps/web/.env.example) to `apps/web/.env` to configure the website. An empty `VITE_CONTACT_ENDPOINT` leaves email delivery unconfigured.
+
+| Command                 | Purpose                            |
+| ----------------------- | ---------------------------------- |
+| `npm run build`         | Build into `apps/web/dist`         |
+| `npm run preview`       | Preview the built website          |
+| `npm test`              | Test all three apps                |
+| `npm run format:check`  | Check formatting                   |
+| `npm run dev:studio`    | Start the configured CMS           |
+| `npm run dev:contact`   | Start the contact Worker           |
+| `npm run build:contact` | Check deployment without uploading |
+
+## Use Sanity
+
+Copy [apps/studio/.env.example](apps/studio/.env.example) to `apps/studio/.env`, set your project ID and dataset, then run `npm run dev:studio`.
+
+For CMS-backed website builds, set `CONTENT_SOURCE=sanity`, `SANITY_PROJECT_ID` and `SANITY_DATASET` in the website env file. Add `SANITY_READ_TOKEN` for a private dataset. Only published documents are included.
+
+Optional: `npm run seed:content` loads fixtures into a non-production dataset using shell variables `SANITY_PROJECT_ID`, `SANITY_DATASET` and `SANITY_WRITE_TOKEN`. It skips existing documents and refuses `production`.
+
+## Deployment
+
+**Website:** the [Pages workflow](.github/workflows/pages.yml) tests and builds the apps before publishing. It refreshes every 30 minutes and supports CMS webhook triggers. Deployment requires `main`, the production dataset and `SANITY_PUBLICATION_ENABLED=true`.
+
+For your own copy, enable GitHub Pages through Actions. Set repository variables `SANITY_PROJECT_ID`, `SANITY_DATASET`, `SITE_ORIGIN` and `SITE_BASE`. Use `/` for a custom domain or `/repository-name/` for a project site. Store `SANITY_READ_TOKEN` and `LUMA_ICAL_URL` as repository secrets when needed. Staging runs validate without deploying.
+
+**Contact:** configure your domain, allowed website origin, recipient and verified Resend sender in [cloudflare.config.ts](apps/contact/cloudflare.config.ts). Deploy separately from `apps/contact`, keeping `RESEND_API_KEY` in an external env file:
 
 ```sh
-npm run build
-npm test
-npm run format:check
-npm run dev:studio
-npm run build:contact
+npx cf deploy --secrets-file /path/to/contact.env
 ```
 
-Studio requires `SANITY_STUDIO_PROJECT_ID` and `SANITY_STUDIO_DATASET`; its example is in `apps/studio/.env.example`. [Sanity Studio](https://gcom-wtzkb2rs.sanity.studio/) publishes editorial content. Events come from Luma.
+Set repository variable `CONTACT_ENDPOINT` to the deployed HTTPS URL ending in `/api/contact`, then rebuild the website. Local settings use `VITE_CONTACT_ENDPOINT` and an ignored Worker `.dev.vars` file; match `CONTACT_ALLOWED_ORIGIN` to your local website.
 
-## Contact setup
+When forking, replace GCOM content, domains and the [webhook destination](apps/studio/webhook.json). Never commit credentials or put them in public `VITE_` variables.
 
-The form posts to `https://gcom-contact.techtom.tech/api/contact`. The Worker validates the request and sends a plain-text email to the temporary recipient `kitsunies@gmail.com`, with the visitor's email as Reply-To. It returns success only after Resend accepts the message.
+## License and credits
 
-The temporary `onboarding@resend.dev` sender is Resend's sandbox and can only reach the Resend account's own email address. Use a verified club domain before changing the recipient.
+Source code: [MIT](LICENSE). GCOM logos, artwork, photographs and editorial content are excluded. Dependencies and fonts retain their own licenses; font notices are copied into website builds.
 
-1. [Verify a sender domain in Resend](https://resend.com/docs/dashboard/domains/introduction) and create an API key permitted to send from it.
-2. Set `CONTACT_FROM` in `apps/contact/cloudflare.config.ts` to an address at that verified domain; keep the configured recipient and website origin.
-3. Store `RESEND_API_KEY` in a mode-600 env file outside the repository, for example `~/.claude/.secrets/gcom-contact.env`.
-4. Authenticate the Cloudflare CLI and deploy from the Worker directory:
-
-```sh
-cd apps/contact
-npx cf deploy --secrets-file ~/.claude/.secrets/gcom-contact.env
-```
-
-5. Set GitHub's `CONTACT_ENDPOINT` repository variable to the deployed HTTPS Worker URL plus `/api/contact`; set local `VITE_CONTACT_ENDPOINT` to the same URL when needed. Rebuild the website to activate it.
-6. Submit one test from the live contact page and check the recipient's inbox before considering delivery verified.
-
-For local Worker development, put the key in an ignored `apps/contact/.dev.vars` file and set `CONTACT_ALLOWED_ORIGIN` to your exact local website origin, then run `npm run dev:contact`. Local previews from another device should use a raw tailnet IP and bind to `0.0.0.0`.
-
-The endpoint retains request validation, a honeypot and a 16 KiB body limit. Cloudflare limits five POST attempts per IP per minute per location; this is approximate abuse protection. Missing configuration and delivery failures preserve the visitor's draft and direct-email fallback. Contact submissions and provider credentials are never stored in Sanity or the static bundle.
-
-## Publishing and checks
-
-GitHub Actions validates CMS content, tests all apps, builds Studio and the static website, runs browser checks, then publishes `apps/web/dist` to [gcom.techtom.tech](https://gcom.techtom.tech/). Production publication requires `SANITY_PUBLICATION_ENABLED=true`; staging builds never deploy. CMS publication webhooks and scheduled refreshes retain the existing workflow.
-
-The Worker has separate checks and manual deployment; website publication does not deploy it. `npm run build:contact` checks deployment without uploading. Browser contact tests mock delivery and never send real messages.
-
-Private CMS operations and historical editor recovery instructions are maintained outside this repository.
-
-CMS patterns and the contact delivery approach are adapted from [Monash Association of Coding](https://github.com/monashcoding/monashcoding-site).
+CMS patterns and contact delivery are adapted from [Monash Association of Coding](https://github.com/monashcoding/monashcoding-site), which declares ISC licensing. See [third-party notices](THIRD_PARTY_NOTICES).
