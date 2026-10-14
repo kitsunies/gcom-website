@@ -1,3 +1,4 @@
+import { Icon } from './Icon';
 import { useEffect, useRef, useState } from 'react';
 import { content, asset, art } from '../content';
 export function Mascots() {
@@ -63,7 +64,7 @@ export function Mascots() {
         {paused
           ? content.navigation.motion.playLabel
           : content.navigation.motion.pauseLabel}{' '}
-        <span aria-hidden="true">{paused ? '▶' : 'Ⅱ'}</span>
+        <Icon name={paused ? 'play' : 'pause'} />
       </button>
     </div>
   );

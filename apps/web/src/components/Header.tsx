@@ -1,3 +1,4 @@
+import { Icon } from './Icon';
 import { useEffect, useRef, useState } from 'react';
 import {
   content,
@@ -77,7 +78,7 @@ export function Header({ page }: { page: PageName }) {
             </a>
           ))}
           <a className="button small" href={membership}>
-            {content.navigation.joinLabel} <span aria-hidden="true">↗</span>
+            {content.navigation.joinLabel} <Icon name="arrow-up-right" />
           </a>
         </nav>
       </div>

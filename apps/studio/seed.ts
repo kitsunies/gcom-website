@@ -77,6 +77,8 @@ export async function seedContent(
     intro: 'intro',
     hero: 'hero',
     footer: 'footer',
+    instagram: 'publicLink',
+    discord: 'publicLink',
     invitation: 'invitation',
     motion: 'motion',
     events: 'events',

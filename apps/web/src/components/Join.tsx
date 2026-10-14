@@ -1,3 +1,4 @@
+import { Icon } from './Icon';
 import { content, membership } from '../content';
 export function Join() {
   const copy = content.navigation.invitation;
@@ -10,7 +11,7 @@ export function Join() {
       </h2>
       <p>{copy.text}</p>
       <a className="button" href={membership}>
-        {copy.action} <span aria-hidden="true">↗</span>
+        {copy.action} <Icon name="arrow-up-right" />
       </a>
     </section>
   );

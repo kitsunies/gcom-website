@@ -1,3 +1,4 @@
+import { Icon } from '../components/Icon';
 import { content, asset, href } from '../content';
 import { Join } from '../components/Join';
 export function Team() {
@@ -36,7 +37,7 @@ export function Team() {
                     {member.links.map((link) => (
                       <li key={link.url}>
                         <a href={link.url}>
-                          {link.label} <span aria-hidden="true">↗</span>
+                          {link.label} <Icon name="arrow-up-right" />
                         </a>
                       </li>
                     ))}

@@ -9,6 +9,35 @@ import events from '../public/data/events.json';
 import type { EventSummary } from '../src/content';
 import { pageHtml } from '../scripts/page-metadata';
 
+test('every page uses CMS footer social labels and destinations', () => {
+  const original = structuredClone(content.navigation.footer);
+  try {
+    Object.assign(content.navigation.footer, {
+      instagram: {
+        label: 'CMS photo community',
+        url: 'https://example.test/photos',
+      },
+      discord: {
+        label: 'CMS chat community',
+        url: 'https://example.test/chat',
+      },
+    });
+    for (const page of ['home', 'about', 'team', 'contact'] as const) {
+      const html = renderToString(createElement(App, { page }));
+      assert.match(
+        html,
+        /href="https:\/\/example.test\/photos"[^>]*>CMS photo community/,
+      );
+      assert.match(
+        html,
+        /href="https:\/\/example.test\/chat"[^>]*>CMS chat community/,
+      );
+    }
+  } finally {
+    content.navigation.footer = original;
+  }
+});
+
 test('every editorial text and media field reaches rendering or metadata', () => {
   const leaves = (value: any, path: string[] = []): string[][] =>
     typeof value === 'string'

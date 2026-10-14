@@ -157,6 +157,87 @@ try {
       assert.deepEqual(facts.brokenImages, []);
       assert.ok(facts.title && facts.description);
       assert.equal(await page.locator('h1').count(), 1);
+      assert.doesNotMatch(await page.locator('body').innerText(), /[↗▶Ⅱ]/u);
+      const footerLinks = page.locator('.footer-links a');
+      assert.deepEqual(
+        await footerLinks.evaluateAll((links) =>
+          links.map((link) => [
+            link.textContent.trim(),
+            link.getAttribute('href'),
+          ]),
+        ),
+        [
+          [
+            snapshot.navigation.footer.joinLabel,
+            snapshot.settings.membershipUrl,
+          ],
+          [
+            snapshot.navigation.footer.instagram.label,
+            snapshot.navigation.footer.instagram.url,
+          ],
+          [
+            snapshot.navigation.footer.discord.label,
+            snapshot.navigation.footer.discord.url,
+          ],
+        ],
+      );
+      const footerRows = await footerLinks.evaluateAll((links) =>
+        links.map((link) => {
+          const box = link.getBoundingClientRect();
+          return {
+            top: box.top,
+            visible: box.left >= 0 && box.right <= innerWidth,
+          };
+        }),
+      );
+      assert(
+        footerRows.every((row) => row.visible),
+        'Footer links stay in viewport',
+      );
+      for (const link of await footerLinks.all()) {
+        await link.focus();
+        assert.equal(
+          await link.evaluate(
+            (element) =>
+              element === document.activeElement &&
+              element.matches(':focus-visible'),
+          ),
+          true,
+        );
+      }
+      for (const toggle of await page.locator('.motion-toggle').all()) {
+        await toggle.focus();
+        await page.keyboard.press('Enter');
+        assert.equal(await toggle.getAttribute('aria-pressed'), 'true');
+        assert.equal(
+          (await toggle.textContent()).trim(),
+          snapshot.navigation.motion.playLabel,
+        );
+        assert.equal(
+          await toggle.locator('svg[aria-hidden="true"]').count(),
+          1,
+        );
+        assert.equal(
+          await toggle
+            .locator('..')
+            .locator('.mascots')
+            .getAttribute('data-paused'),
+          'true',
+        );
+        await page.keyboard.press('Space');
+        assert.equal(await toggle.getAttribute('aria-pressed'), 'false');
+        assert.equal(
+          (await toggle.textContent()).trim(),
+          snapshot.navigation.motion.pauseLabel,
+        );
+        assert.equal(
+          await toggle
+            .locator('..')
+            .locator('.mascots')
+            .getAttribute('data-paused'),
+          'false',
+        );
+      }
       const axe = await new AxeBuilder({ page })
         .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
         .analyze();

@@ -1,3 +1,4 @@
+import { Icon } from './components/Icon';
 import { useRef, useState, type FormEvent } from 'react';
 import { content, contact, contactEndpoint } from './content';
 
@@ -155,7 +156,7 @@ export function ContactForm() {
       <p className="direct-email">
         {copy.directPrompt}{' '}
         <a href={emailLink}>
-          {copy.directLabel} <span aria-hidden="true">↗</span>
+          {copy.directLabel} <Icon name="arrow-up-right" />
         </a>
       </p>
     </div>

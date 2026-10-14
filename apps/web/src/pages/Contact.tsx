@@ -1,3 +1,4 @@
+import { Icon } from '../components/Icon';
 import { content, asset, href, membership } from '../content';
 import { ContactForm } from '../ContactForm';
 export function Contact() {
@@ -25,7 +26,7 @@ export function Contact() {
               <h3>{copy.sidebar.joinHeading}</h3>
               <p>{copy.sidebar.joinText}</p>
               <a className="text-link" href={membership}>
-                {copy.sidebar.joinLabel} <span aria-hidden="true">↗</span>
+                {copy.sidebar.joinLabel} <Icon name="arrow-up-right" />
               </a>
             </div>
           </aside>

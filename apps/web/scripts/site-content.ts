@@ -123,6 +123,13 @@ export function validateSiteContent(
     'Membership must use HTTPS',
   );
   assert(
+    [
+      content.navigation.footer.instagram,
+      content.navigation.footer.discord,
+    ].every((link) => safeHttps(link.url)),
+    'Footer social links must use HTTPS',
+  );
+  assert(
     !content.settings.calendarUrl || safeHttps(content.settings.calendarUrl),
     'Calendar must use HTTPS',
   );

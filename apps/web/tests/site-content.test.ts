@@ -92,6 +92,24 @@ test('snapshot replacement is atomic and invalid content preserves last valid by
     await rm(dir, { recursive: true });
   }
 });
+test('footer socials require labels and public HTTPS destinations', () => {
+  for (const platform of ['instagram', 'discord'] as const) {
+    for (const url of [
+      '',
+      '#events',
+      'http://example.test',
+      'javascript:alert(1)',
+      'https://user:pass@example.test',
+    ]) {
+      const copy = structuredClone(fixture);
+      copy.navigation.footer[platform].url = url;
+      assert.throws(() => validateSiteContent(copy));
+    }
+    const copy = structuredClone(fixture);
+    copy.navigation.footer[platform].label = '';
+    assert.throws(() => validateSiteContent(copy));
+  }
+});
 test('query requires fixed published identities and never projects private fields', async () => {
   for (const key of Object.keys(fixture))
     assert(siteQuery.includes(`_id=="${key}" && _type=="${key}"`));

@@ -198,7 +198,11 @@ export const schemaTypes = [
     text('label'),
     linkUrl,
   ]),
-  object('footer', texts('tagline', 'description', 'joinLabel')),
+  object('footer', [
+    ...texts('tagline', 'description', 'joinLabel'),
+    field('instagram', 'publicLink'),
+    field('discord', 'publicLink'),
+  ]),
   object(
     'invitation',
     texts('eyebrow', 'heading', 'highlight', 'text', 'action'),

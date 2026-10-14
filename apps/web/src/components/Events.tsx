@@ -1,3 +1,4 @@
+import { Icon } from './Icon';
 import { useEffect, useState } from 'react';
 import { content, href, calendar, type EventSummary } from '../content';
 import snapshot from '../../public/data/events.json';
@@ -27,7 +28,7 @@ export function Events() {
         </div>
         {calendar ? (
           <a className="text-link" href={calendar}>
-            {copy.calendarLabel} <span aria-hidden="true">↗</span>
+            {copy.calendarLabel} <Icon name="arrow-up-right" />
           </a>
         ) : null}
       </div>
@@ -42,7 +43,7 @@ export function Events() {
                   {event.location ? <p>{event.location}</p> : null}
                 </div>
                 <span className="event-action">
-                  {copy.eventLabel} <span aria-hidden="true">↗</span>
+                  {copy.eventLabel} <Icon name="arrow-up-right" />
                 </span>
               </a>
             </li>

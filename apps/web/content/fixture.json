@@ -78,7 +78,15 @@
     "footer": {
       "tagline": "Make games. Make friends.",
       "description": "Monash University Game Development Club",
-      "joinLabel": "Join the Club"
+      "joinLabel": "Join the Club",
+      "instagram": {
+        "label": "Instagram",
+        "url": "https://www.instagram.com/gcom_club/"
+      },
+      "discord": {
+        "label": "Discord",
+        "url": "https://discord.com/invite/KmMVxTY2E"
+      }
     },
     "invitation": {
       "eyebrow": "CREATIVITY AWAITS",

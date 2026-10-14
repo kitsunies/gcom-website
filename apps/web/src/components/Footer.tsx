@@ -1,3 +1,4 @@
+import { Icon } from './Icon';
 import { content, asset, local, membership } from '../content';
 export function Footer() {
   return (
@@ -23,10 +24,19 @@ export function Footer() {
           <br />
           <span>{content.navigation.footer.description}</span>
         </p>
-        <a href={membership}>
-          {content.navigation.footer.joinLabel}{' '}
-          <span aria-hidden="true">↗</span>
-        </a>
+        <div className="footer-links">
+          <a href={membership}>
+            {content.navigation.footer.joinLabel} <Icon name="arrow-up-right" />
+          </a>
+          <a href={content.navigation.footer.instagram.url}>
+            {content.navigation.footer.instagram.label}{' '}
+            <Icon name="arrow-up-right" />
+          </a>
+          <a href={content.navigation.footer.discord.url}>
+            {content.navigation.footer.discord.label}{' '}
+            <Icon name="arrow-up-right" />
+          </a>
+        </div>
       </div>
     </footer>
   );
