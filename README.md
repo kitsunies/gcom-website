@@ -31,6 +31,8 @@ Studio requires `SANITY_STUDIO_PROJECT_ID` and `SANITY_STUDIO_DATASET`; its exam
 
 The form posts to `https://gcom-contact.techtom.tech/api/contact`. The Worker validates the request and sends a plain-text email to the temporary recipient `kitsunies@gmail.com`, with the visitor's email as Reply-To. It returns success only after Resend accepts the message.
 
+The temporary `onboarding@resend.dev` sender is Resend's sandbox and can only reach the Resend account's own email address. Use a verified club domain before changing the recipient.
+
 1. [Verify a sender domain in Resend](https://resend.com/docs/dashboard/domains/introduction) and create an API key permitted to send from it.
 2. Set `CONTACT_FROM` in `apps/contact/cloudflare.config.ts` to an address at that verified domain; keep the configured recipient and website origin.
 3. Store `RESEND_API_KEY` in a mode-600 env file outside the repository, for example `~/.claude/.secrets/gcom-contact.env`.
