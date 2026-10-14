@@ -10,7 +10,8 @@ export default defineConfig({
     env: {
       CONTACT_ALLOWED_ORIGIN: bindings.text('https://gcom.techtom.tech'),
       CONTACT_RECIPIENT: bindings.text('kitsunies@gmail.com'),
-      CONTACT_FROM: bindings.text(''),
+      // shortcut: Resend's sandbox only reaches the account owner; use a verified club domain before changing the recipient.
+      CONTACT_FROM: bindings.text('onboarding@resend.dev'),
       RESEND_API_KEY: bindings.secret(),
       CONTACT_RATE_LIMIT: bindings.rateLimit({
         namespace: '1001',
