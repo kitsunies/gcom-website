@@ -79,7 +79,7 @@ test('sends fixed plain text mail and waits for provider acceptance', async (t) 
   assert.equal(completed, false);
   assert.equal(mails[0].url, 'https://api.resend.com/emails');
   assert.equal(mails[0].method, 'POST');
-  assert.equal(mails[0].redirect, 'error');
+  assert.equal(mails[0].redirect, 'manual');
   assert.equal(mails[0].headers.Authorization, 'Bearer test-only');
   assert.deepEqual(mails[0].body, {
     from: 'club@example.com',
