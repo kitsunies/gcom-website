@@ -11,8 +11,8 @@
     "preview": "vite preview --host 0.0.0.0"
   },
   "dependencies": {
-    "@fontsource/nunito": "5.3.0",
-    "@fontsource/pixelify-sans": "5.3.0",
+    "@fontsource-variable/rubik": "^5.3.0",
+    "@fontsource/geo": "^5.3.0",
     "react": "19.3.0",
     "react-dom": "19.3.0"
   },
