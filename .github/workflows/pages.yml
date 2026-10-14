@@ -3,6 +3,8 @@ on:
   push:
     branches: [main, master]
     paths-ignore: ['apps/contact/**']
+  pull_request:
+    paths-ignore: ['apps/contact/**']
   workflow_dispatch:
     inputs:
       dataset:
@@ -19,7 +21,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   build:
-    if: github.event_name == 'workflow_dispatch' || vars.SANITY_PUBLICATION_ENABLED == 'true'
+    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' || vars.SANITY_PUBLICATION_ENABLED == 'true'
     runs-on: ubuntu-latest
     outputs:
       dataset: ${{ steps.dataset.outputs.name }}

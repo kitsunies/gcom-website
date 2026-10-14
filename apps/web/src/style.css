@@ -1,7 +1,6 @@
-@import '@fontsource/pixelify-sans/latin-700.css';
-@import '@fontsource/nunito/latin-400.css';
-@import '@fontsource/nunito/latin-600.css';
-@import '@fontsource/nunito/latin-800.css';
+@import '@fontsource/nova-square/latin-400.css';
+@import '@fontsource/aldrich/latin-400.css';
+@import '@fontsource/ibm-plex-mono/latin-700-italic.css';
 
 :root {
   --bg: #1c1c1c;
@@ -27,8 +26,9 @@
   --radius-card: 14px;
   --shadow-control: 0 6px 0 #0c0c12;
   --shadow-display: 0 3px 0 #514062;
-  --display: 'Pixelify Sans', monospace;
-  --body: 'Nunito', sans-serif;
+  --display: 'Nova Square', sans-serif;
+  --body: 'Aldrich', sans-serif;
+  --hero: 'IBM Plex Mono', monospace;
   --hero-size: 80px;
   --page-size: 56px;
   --section-size: 40px;
@@ -82,7 +82,7 @@ h2,
 h3,
 .pixel {
   font-family: var(--display);
-  font-weight: 700;
+  font-weight: 400;
 }
 h1,
 h2,
@@ -117,6 +117,9 @@ p {
 .yellow-text {
   color: var(--yellow);
 }
+.brand .yellow-text {
+  font-family: var(--display);
+}
 .skip-link {
   position: fixed;
   left: var(--s6);
@@ -134,15 +137,23 @@ p {
   position: relative;
   isolation: isolate;
   overflow: clip;
+  background:
+    radial-gradient(ellipse at 50% 0%, #382b4a 0, transparent 46%), var(--bg);
 }
-.environment::before {
+
+.environment::before,
+.environment::after {
   content: '';
   position: absolute;
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  opacity: 0.2;
+}
+
+.environment::before {
+  opacity: 0.24;
   background-image:
+    radial-gradient(circle, #b395e8 1px, transparent 1.5px),
     conic-gradient(
       from 90deg,
       #48464e 25%,
@@ -157,6 +168,7 @@ p {
       transparent 304px 640px
     );
   background-size:
+    180px 180px,
     96px 96px,
     960px 640px;
   mask-image: linear-gradient(
@@ -167,6 +179,15 @@ p {
     #000
   );
 }
+
+.environment::after {
+  opacity: 0.8;
+  background:
+    radial-gradient(ellipse at 12% 18%, #8964c222, transparent 32%),
+    radial-gradient(ellipse at 86% 56%, #8bb7f114, transparent 30%),
+    radial-gradient(ellipse at 46% 92%, #ef89930c, transparent 38%);
+}
+
 .site-header {
   min-height: 88px;
   position: relative;
@@ -191,8 +212,8 @@ p {
 }
 .brand > span {
   color: var(--lavender);
-  font: 700 40px/1 var(--display);
-  letter-spacing: 4px;
+  font: 400 clamp(24px, 5vw, 32px)/1 var(--body);
+  letter-spacing: -1px;
 }
 .nav {
   display: flex;
@@ -278,19 +299,37 @@ p {
   gap: var(--s8);
   padding-block: var(--s16);
 }
+/* Container units keep edited CMS titles inside the hero column. */
+.hero-copy {
+  container-type: inline-size;
+}
 .hero h1 {
-  font-size: var(--hero-size);
-  line-height: 1.05;
-  letter-spacing: -2px;
+  font: italic 700 min(var(--hero-size), 12cqi)/1.15 var(--hero);
+  letter-spacing: 0.025em;
   margin-top: var(--s6);
+  padding-block: var(--s4);
   text-shadow: var(--shadow-display);
 }
-.hero h1 span {
+.hero-word {
   display: block;
-  white-space: nowrap;
+  width: fit-content;
+  max-width: calc(100% - min(75px, 9cqi) - 1em);
+  overflow-wrap: anywhere;
+  rotate: -4deg;
+  translate: min(75px, 9cqi) 0;
 }
-.hero h1 span + span {
+.hero-word + .hero-word {
   color: var(--lavender);
+  translate: min(10px, 2cqi) -8px;
+}
+.hero-letter {
+  display: inline-block;
+  --letter-rise: calc(var(--letter-index) * -2px);
+  translate: 0 var(--letter-rise);
+  transition: translate 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.hero-letter:hover {
+  translate: -2px calc(var(--letter-rise) + 8px);
 }
 .hero-description {
   margin-top: var(--s6);
@@ -337,7 +376,7 @@ p {
 }
 .mascot.character-green {
   left: 0;
-  top: 8%;
+  top: 0;
   transform: rotate(-10deg);
   animation-duration: 5.5s;
 }
@@ -369,7 +408,7 @@ p {
 }
 .spark {
   position: absolute;
-  font: 700 40px/1 var(--display);
+  font: 400 40px/1 var(--display);
   color: var(--yellow);
   animation: spark-turn 7s ease-in-out infinite;
   animation-play-state: paused;
@@ -408,7 +447,7 @@ p {
 .scene-label {
   position: absolute;
   color: var(--lavender);
-  font: 700 16px/1 var(--display);
+  font: 400 16px/1 var(--display);
   letter-spacing: 2px;
   opacity: 0.8;
 }
@@ -1029,6 +1068,24 @@ p {
     transform: translateY(0);
   }
 }
+@supports (animation-timeline: scroll()) {
+  .environment::before,
+  .environment::after {
+    animation: background-drift linear both;
+    animation-timeline: scroll(root);
+  }
+  .environment::before {
+    --drift: 8vh;
+  }
+  .environment::after {
+    --drift: 4vh;
+  }
+}
+@keyframes background-drift {
+  to {
+    transform: translateY(var(--drift));
+  }
+}
 @media (prefers-reduced-motion: no-preference) {
   .hero h1 > span {
     animation: title-enter 0.6s cubic-bezier(0.16, 1, 0.3, 1) backwards;
@@ -1460,5 +1517,10 @@ p {
   }
   .motion-toggle {
     display: none;
+  }
+  .hero-word,
+  .hero-letter {
+    translate: none;
+    rotate: none;
   }
 }

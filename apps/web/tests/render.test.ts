@@ -122,3 +122,16 @@ test('metadata escapes editorial input and handles local and CDN images at subpa
   html = pageHtml(copy, 'home', new URL('https://example.test'), '/repo/');
   assert(html.includes('hash-1200x630.png?w=1200&amp;fit=max'));
 });
+
+test('the animated hero keeps the CMS title as one accessible name', () => {
+  const heading = content.home.hero.heading;
+  try {
+    content.home.hero.heading = ['BUILD & PLAY', 'Cafe\u0301 👩‍💻'];
+    const html = renderToString(createElement(App, { page: 'home' }));
+    assert.match(html, /<h1[^>]*aria-label="BUILD &amp; PLAY Café 👩‍💻"/);
+    assert.match(html, /class="hero-letter"[^>]*>é<\/span>/u);
+    assert.match(html, /class="hero-letter"[^>]*>👩‍💻<\/span>/u);
+  } finally {
+    content.home.hero.heading = heading;
+  }
+});

@@ -40,8 +40,8 @@ export function Header({ page }: { page: PageName }) {
           <img
             src={asset(content.settings.logo)}
             alt={content.settings.logo.alt}
-            width="56"
-            height="56"
+            width="36"
+            height="36"
           />
           <span>
             {content.settings.brand.before}
