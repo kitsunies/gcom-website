@@ -1,8 +1,10 @@
-import { useEffect, useRef, Fragment } from 'react';
+import { useEffect, useRef, Fragment, type CSSProperties } from 'react';
 import { content, asset, href, membership, art, composition } from '../content';
 import { Join } from '../components/Join';
 import { Mascots } from '../components/Mascots';
 import { Events } from '../components/Events';
+
+const characters = new Intl.Segmenter(undefined, { granularity: 'grapheme' });
 export function Home() {
   const copy = content.home;
   const questsSection = useRef<HTMLElement>(null);
@@ -33,14 +35,27 @@ export function Home() {
         <div className="hero-copy">
           <p className="eyebrow pixel">
             <span aria-hidden="true">✣</span> {copy.hero.university}{' '}
-            <span className="yellow-text" aria-hidden="true">
-              +
-            </span>{' '}
-            {copy.hero.club}
+            <span className="yellow-text">{copy.hero.club}</span>
           </p>
-          <h1 id="hero-heading">
+          <h1 id="hero-heading" aria-label={copy.hero.heading.join(' ')}>
             {copy.hero.heading.map((line, index) => (
-              <span key={index}>{line}</span>
+              <span className="hero-word" aria-hidden="true" key={index}>
+                {Array.from(characters.segment(line)).map(
+                  ({ segment: letter }, position) => (
+                    <span
+                      className="hero-letter"
+                      style={
+                        {
+                          '--letter-index': Math.min(position, 7),
+                        } as CSSProperties
+                      }
+                      key={position}
+                    >
+                      {letter === ' ' ? '\u00a0' : letter}
+                    </span>
+                  ),
+                )}
+              </span>
             ))}
           </h1>
           <p className="hero-description">{copy.hero.description}</p>

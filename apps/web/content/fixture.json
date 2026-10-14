@@ -81,10 +81,10 @@
       "joinLabel": "Join the Club"
     },
     "invitation": {
-      "eyebrow": "PLAYER TWO WANTED",
-      "heading": "Got an idea? ",
-      "highlight": "Find your party.",
-      "text": "There’s a place here for your first experiment, your next project and the people you’ll make it with.",
+      "eyebrow": "CREATIVITY AWAITS",
+      "heading": "Build connections.",
+      "highlight": " Build Games.",
+      "text": "It takes less than a minute to join GCOM.",
       "action": "Join GCOM"
     },
     "motion": {
@@ -96,18 +96,18 @@
   },
   "home": {
     "metadata": {
-      "title": "GCOM | Make games. Make friends.",
-      "description": "Find your people and bring wild ideas to life with GCOM, the Monash University game development club.",
+      "title": "GCOM | Build it your way.",
+      "description": "Explore Game Development and Game Design with GCOM. Let's create cool experiences together!",
       "image": {
         "src": "artwork/banner.png",
         "alt": "GCOM game development club"
       }
     },
     "hero": {
-      "university": "MONASH UNIVERSITY",
-      "club": "GAME DEV CLUB",
-      "heading": ["MAKE GAMES.", "MAKE FRIENDS."],
-      "description": "From your first prototype to your next game jam, find your people and bring wild ideas to life.",
+      "university": "GAME CREATORS OF",
+      "club": "MONASH",
+      "heading": ["BUILD IT", "YOUR WAY"],
+      "description": "Explore Game Development and Game Design with GCOM. Let's create cool experiences together!",
       "joinLabel": "Join GCOM",
       "explore": {
         "label": "Explore Game Jams",
@@ -121,17 +121,17 @@
       {
         "name": "Game Jams",
         "theme": "purple",
-        "label": "BUILD SOMETHING WILD",
-        "text": "Find a team, try a new idea and turn a blank canvas into something playable.",
+        "label": "NETHERITE FORMS UNDER PRESSURE",
+        "text": "Build a game in a short time with a team!",
         "action": {
           "label": "Find a game jam",
           "url": "#events"
         }
       },
       {
-        "name": "Game Dev Workshops",
+        "name": "Workshops",
         "theme": "green",
-        "label": "ADD TO YOUR TOOLKIT",
+        "label": "LET'S BUILD IT",
         "text": "Explore code, art, design and more. Learn with other people who love making games.",
         "action": {
           "label": "Explore workshops",
@@ -141,7 +141,7 @@
       {
         "name": "Showcase Night",
         "theme": "yellow",
-        "label": "LET IT PLAY",
+        "label": "THE SHOW MUST GO ON",
         "text": "See what the club has been building, share your experiments and celebrate the community.",
         "action": {
           "label": "Find a showcase",

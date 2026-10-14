@@ -145,12 +145,14 @@ try {
         description: document.querySelector('meta[name="description"]')
           ?.content,
       }));
-      assert.match(facts.bodyFont, /Nunito/);
-      assert.match(facts.headingFont, /Pixelify Sans/);
-      assert.ok(facts.loadedFonts.some((font) => font.includes('Nunito')));
-      assert.ok(
-        facts.loadedFonts.some((font) => font.includes('Pixelify Sans')),
-      );
+      assert.match(facts.bodyFont, /Aldrich/);
+      assert.match(facts.headingFont, path ? /Nova Square/ : /IBM Plex Mono/);
+      assert.ok(facts.loadedFonts.some((font) => font.includes('Aldrich')));
+      assert.ok(facts.loadedFonts.some((font) => font.includes('Nova Square')));
+      if (!path)
+        assert.ok(
+          facts.loadedFonts.some((font) => font.includes('IBM Plex Mono')),
+        );
       assert.equal(facts.overflow, false, `${path} horizontal overflow`);
       assert.deepEqual(facts.brokenImages, []);
       assert.ok(facts.title && facts.description);
@@ -170,6 +172,38 @@ try {
         [],
         `${path} ${viewport.width}px accessibility`,
       );
+      if (!path) {
+        const clippedLetters = await page.locator('h1').evaluate((heading) => {
+          const original = heading.innerHTML;
+          try {
+            heading.querySelectorAll('.hero-word').forEach((line) => {
+              line.style.animation = 'none';
+              const letter = line.querySelector('.hero-letter');
+              line.replaceChildren(
+                ...Array.from(
+                  'BUILD INCREDIBLE GAMES TOGETHER',
+                  (character, index) => {
+                    const span = letter.cloneNode(true);
+                    span.style.setProperty(
+                      '--letter-index',
+                      Math.min(index, 7),
+                    );
+                    span.textContent = character === ' ' ? '\u00a0' : character;
+                    return span;
+                  },
+                ),
+              );
+            });
+            return [...heading.querySelectorAll('.hero-letter')]
+              .map((letter) => letter.getBoundingClientRect())
+              .filter((box) => box.left < -1 || box.right > innerWidth + 1)
+              .map((box) => ({ left: box.left, right: box.right }));
+          } finally {
+            heading.innerHTML = original;
+          }
+        });
+        assert.deepEqual(clippedLetters, [], 'Edited CMS titles stay visible');
+      }
       if (viewport.width < 1100) {
         await page.evaluate(() => scrollTo(0, 0));
         const toggle = page.locator('.menu-toggle');
@@ -200,7 +234,9 @@ try {
       );
       assert.deepEqual(
         await page
-          .locator('.mascot,.spark,.mascot-ground,.quest-card')
+          .locator(
+            '.mascot,.spark,.mascot-ground,.quest-card,.hero-word,.hero-letter',
+          )
           .evaluateAll((elements) =>
             elements
               .filter(
