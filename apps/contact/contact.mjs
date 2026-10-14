@@ -181,7 +181,7 @@ export default {
       try {
         const response = await fetch('https://api.resend.com/emails', {
           method: 'POST',
-          redirect: 'error',
+          redirect: 'manual',
           signal: AbortSignal.timeout(10000),
           headers: {
             Authorization: `Bearer ${key}`,
