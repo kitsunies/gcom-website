@@ -1,5 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
-import { art, calendar, composition, local, membership, type EventSummary, type PageName, type TeamMember } from './content';
+import {
+  art,
+  calendar,
+  composition,
+  local,
+  membership,
+  type EventSummary,
+  type PageName,
+  type TeamMember,
+} from './content';
 import { ContactForm } from './ContactForm';
 import roster from '../public/data/team.json';
 import snapshot from '../public/data/events.json';
@@ -11,32 +20,74 @@ function Header({ page }: { page: PageName }) {
   useEffect(() => {
     if (!open) return;
     const dismiss = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') { setOpen(false); toggle.current?.focus(); }
+      if (event.key === 'Escape') {
+        setOpen(false);
+        toggle.current?.focus();
+      }
     };
-    const resize = () => { if (window.innerWidth > 1100) setOpen(false); };
+    const resize = () => {
+      if (window.innerWidth > 1100) setOpen(false);
+    };
     document.addEventListener('keydown', dismiss);
     window.addEventListener('resize', resize);
-    return () => { document.removeEventListener('keydown', dismiss); window.removeEventListener('resize', resize); };
+    return () => {
+      document.removeEventListener('keydown', dismiss);
+      window.removeEventListener('resize', resize);
+    };
   }, [open]);
   const links = [
-    ['home', '', 'Home'], 
-    ['events', '#events', 'Events'], 
+    ['home', '', 'Home'],
+    ['events', '#events', 'Events'],
     ['about', 'about/', 'About Us'],
     ['team', 'team/', 'Meet the Team'],
   ];
-  return <header className="site-header">
-    <div className="container header-inner">
-      <a className="brand" href={local()} aria-label="GCOM home">
-        <img src={local('artwork/logo-original.png')} alt="" width="36" height="36" />
-        <span>GC<span className="yellow-text">O</span>M</span></a>
-        <button className="menu-toggle" ref={toggle} aria-expanded={open} aria-controls="main-navigation" onClick={() => setOpen(!open)}>{open ? 'Close' : 'Menu'} <span aria-hidden="true">{open ? '×' : '+'}</span></button>
-    
-      <nav id="main-navigation" className={open ? 'nav open' : 'nav'} aria-label="Main navigation">
-        {links.map(([key, path, label]) => <a key={key} href={local(path)} aria-current={page === key ? 'page' : undefined} onClick={() => setOpen(false)}>{label}</a>)}
-        <a className="button small" href={membership}>Join the Club <span aria-hidden="true">↗</span></a>
-      </nav>
-    </div>
-  </header>;
+  return (
+    <header className="site-header">
+      <div className="container header-inner">
+        <a className="brand" href={local()} aria-label="GCOM home">
+          <img
+            src={local('artwork/logo-original.png')}
+            alt=""
+            width="36"
+            height="36"
+          />
+          <span>
+            GC<span className="yellow-text">O</span>M
+          </span>
+        </a>
+        <button
+          className="menu-toggle"
+          ref={toggle}
+          aria-expanded={open}
+          aria-controls="main-navigation"
+          onClick={() => setOpen(!open)}
+        >
+          {open ? 'Close' : 'Menu'}{' '}
+          <span aria-hidden="true">{open ? '×' : '+'}</span>
+        </button>
+
+        <nav
+          id="main-navigation"
+          className={open ? 'nav open' : 'nav'}
+          aria-label="Main navigation"
+        >
+          {links.map(([key, path, label]) => (
+            <a
+              key={key}
+              href={local(path)}
+              aria-current={page === key ? 'page' : undefined}
+              onClick={() => setOpen(false)}
+            >
+              {label}
+            </a>
+          ))}
+          <a className="button small" href={membership}>
+            Join the Club <span aria-hidden="true">↗</span>
+          </a>
+        </nav>
+      </div>
+    </header>
+  );
 }
 
 function Mascots() {
@@ -44,148 +95,301 @@ function Mascots() {
   const group = useRef<HTMLDivElement>(null);
   useEffect(() => {
     let visible = false;
-    const sync = () => group.current?.setAttribute('data-visible', String(visible && !document.hidden));
-    const observer = new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; sync(); });
+    const sync = () =>
+      group.current?.setAttribute(
+        'data-visible',
+        String(visible && !document.hidden),
+      );
+    const observer = new IntersectionObserver(([entry]) => {
+      visible = entry.isIntersecting;
+      sync();
+    });
     if (group.current) observer.observe(group.current);
     document.addEventListener('visibilitychange', sync);
-    return () => { observer.disconnect(); document.removeEventListener('visibilitychange', sync); };
+    return () => {
+      observer.disconnect();
+      document.removeEventListener('visibilitychange', sync);
+    };
   }, []);
-  return <div className="mascot-area">
-    <div className="mascots" ref={group} data-visible="false" data-paused={paused} aria-hidden="true">
-      <div className="mascot-glow" />
-      {(['green', 'cross', 'yellow', 'coral', 'hero'] as const).map(key => <img key={key} className={`mascot character-${key}`} src={local(`artwork/${art[key]}`)} alt="" width="128" height="128" loading={key === 'hero' ? 'eager' : 'lazy'} fetchPriority={key === 'hero' ? 'high' : 'auto'} />)}
+  return (
+    <div className="mascot-area">
+      <div
+        className="mascots"
+        ref={group}
+        data-visible="false"
+        data-paused={paused}
+        aria-hidden="true"
+      >
+        <div className="mascot-glow" />
+        {(['green', 'cross', 'yellow', 'coral', 'hero'] as const).map((key) => (
+          <img
+            key={key}
+            className={`mascot character-${key}`}
+            src={local(`artwork/${art[key]}`)}
+            alt=""
+            width="128"
+            height="128"
+            loading={key === 'hero' ? 'eager' : 'lazy'}
+            fetchPriority={key === 'hero' ? 'high' : 'auto'}
+          />
+        ))}
         <span className="spark spark-one">+</span>
         <span className="spark spark-two">+</span>
         <span className="spark spark-three">+</span>
         <span className="spark spark-four">+</span>
 
-      <div className="mascot-ground" />
-        <span className="scene-label label-create">CREATE</span><span className="scene-label label-play">PLAY</span>
+        <div className="mascot-ground" />
+        <span className="scene-label label-create">CREATE</span>
+        <span className="scene-label label-play">PLAY</span>
       </div>
-      <button className="motion-toggle" onClick={() => setPaused(!paused)} aria-pressed={paused}>{paused ? 'Play animations' : 'Pause animations'} <span aria-hidden="true">{paused ? '▶' : 'Ⅱ'}</span></button>
-    </div>;
+      <button
+        className="motion-toggle"
+        onClick={() => setPaused(!paused)}
+        aria-pressed={paused}
+      >
+        {paused ? 'Play animations' : 'Pause animations'}{' '}
+        <span aria-hidden="true">{paused ? '▶' : 'Ⅱ'}</span>
+      </button>
+    </div>
+  );
 }
 
 function Join() {
-  return <section className="join-section container" aria-labelledby="join-heading">
-    <span className="pixel eyebrow">CREATIVITY AWAITS</span>
-    <h2 id="join-heading">
-      Build connections.
-      <span> Build Games. </span>
-    </h2>
-    <p>It takes less than a minute to join GCOM.</p>
-    <a className="button" href={membership}>Join GCOM <span aria-hidden="true">↗</span></a></section>;
+  return (
+    <section className="join-section container" aria-labelledby="join-heading">
+      <span className="pixel eyebrow">CREATIVITY AWAITS</span>
+      <h2 id="join-heading">
+        Build connections.
+        <span> Build Games. </span>
+      </h2>
+      <p>It takes less than a minute to join GCOM.</p>
+      <a className="button" href={membership}>
+        Join GCOM <span aria-hidden="true">↗</span>
+      </a>
+    </section>
+  );
 }
 
 function Events() {
   const [now, setNow] = useState<number | null>(null);
-  useEffect(() => { 
-    setNow(Date.now()); const timer = setInterval(() => setNow(Date.now()), 60000); return () => clearInterval(timer); }, []);
-  const events = (snapshot.events as EventSummary[]).filter(event => now === null || isCurrentEvent(event, now)).slice(0, 6);
-  return <section className="events-section container" id="events" aria-labelledby="events-heading">
-    <div className="section-top">
-      <div>
-        <span className="eyebrow pixel">SAVE YOUR SPOT</span>
-        <h2 id="events-heading">Events &amp; Announcements</h2>
+  useEffect(() => {
+    setNow(Date.now());
+    const timer = setInterval(() => setNow(Date.now()), 60000);
+    return () => clearInterval(timer);
+  }, []);
+  const events = (snapshot.events as EventSummary[])
+    .filter((event) => now === null || isCurrentEvent(event, now))
+    .slice(0, 6);
+  return (
+    <section
+      className="events-section container"
+      id="events"
+      aria-labelledby="events-heading"
+    >
+      <div className="section-top">
+        <div>
+          <span className="eyebrow pixel">SAVE YOUR SPOT</span>
+          <h2 id="events-heading">Events &amp; Announcements</h2>
+        </div>
+
+        {calendar ? (
+          <a className="text-link" href={calendar}>
+            Open the Luma calendar <span aria-hidden="true">↗</span>
+          </a>
+        ) : null}
       </div>
-      
-      {calendar ? <a className="text-link" href={calendar}>Open the Luma calendar <span aria-hidden="true">↗</span></a> : null}</div>
-    {events.length ? <ul className="event-list">{events.map(event => 
-      <li key={event.id}>
-        <a href={event.url}>
-          <div>
-            <time dateTime={event.start}>{eventDate(event)}</time>
-            <h3>{event.title}</h3>
-            {event.location ? <p>{event.location}</p> : null}
-          </div>
-          <span className="event-action">
-            View on Luma 
-            <span aria-hidden="true">↗</span>
+      {events.length ? (
+        <ul className="event-list">
+          {events.map((event) => (
+            <li key={event.id}>
+              <a href={event.url}>
+                <div>
+                  <time dateTime={event.start}>{eventDate(event)}</time>
+                  <h3>{event.title}</h3>
+                  {event.location ? <p>{event.location}</p> : null}
+                </div>
+                <span className="event-action">
+                  View on Luma
+                  <span aria-hidden="true">↗</span>
+                </span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <div className="empty-state">
+          <span className="empty-symbol pixel" aria-hidden="true">
+            [ + ]
           </span>
-        </a>
-      </li>)}
-      </ul> : 
-      <div className="empty-state">
-        <span className="empty-symbol pixel" aria-hidden="true">[ + ]</span>
           <div>
-            <h3>{calendar ? 'The next quest is on its way.' : 'Our calendar is getting ready.'}</h3>
-            <p>{calendar ? 'No upcoming events are listed right now. Check the club calendar for the latest updates.' : 'Once the club calendar is connected, upcoming game jams, workshops and showcases will appear here.'}</p>
+            <h3>
+              {calendar
+                ? 'The next quest is on its way.'
+                : 'Our calendar is getting ready.'}
+            </h3>
+            <p>
+              {calendar
+                ? 'No upcoming events are listed right now. Check the club calendar for the latest updates.'
+                : 'Once the club calendar is connected, upcoming game jams, workshops and showcases will appear here.'}
+            </p>
           </div>
-      </div>
-      }
-    
-    <p className="events-note">Event details and registration live on Luma. Times are shown in Melbourne time.</p>
-  </section>;
+        </div>
+      )}
+
+      <p className="events-note">
+        Event details and registration live on Luma. Times are shown in
+        Melbourne time.
+      </p>
+    </section>
+  );
 }
 
 function Home() {
   const questsSection = useRef<HTMLElement>(null);
   useEffect(() => {
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const observer = new IntersectionObserver(entries => {
-      for (const entry of entries) if (entry.isIntersecting) { entry.target.setAttribute('data-arrived', 'true'); observer.unobserve(entry.target); }
-    }, { threshold: .12 });
-    questsSection.current?.querySelectorAll('.quest-card').forEach(card => observer.observe(card));
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries)
+          if (entry.isIntersecting) {
+            entry.target.setAttribute('data-arrived', 'true');
+            observer.unobserve(entry.target);
+          }
+      },
+      { threshold: 0.12 },
+    );
+    questsSection.current
+      ?.querySelectorAll('.quest-card')
+      .forEach((card) => observer.observe(card));
     return () => observer.disconnect();
   }, []);
   const quests = [
-    { name: 'Game Jams', theme: 'purple', label: 'NETHERITE FORMS UNDER PRESSURE', text: 'Build a game in a short time with a team!', action: 'Find a game jam' },
-    { name: 'Workshops', theme: 'green', label: 'LET\'S BUILD IT', text: 'Explore code, art, design and more. Learn with other people who love making games.', action: 'Explore workshops' },
-    { name: 'Showcase Night', theme: 'yellow', label: 'THE SHOW MUST GO ON', text: 'See what the club has been building, share your experiments and celebrate the community.', action: 'Find a showcase' },
+    {
+      name: 'Game Jams',
+      theme: 'purple',
+      label: 'NETHERITE FORMS UNDER PRESSURE',
+      text: 'Build a game in a short time with a team!',
+      action: 'Find a game jam',
+    },
+    {
+      name: 'Workshops',
+      theme: 'green',
+      label: "LET'S BUILD IT",
+      text: 'Explore code, art, design and more. Learn with other people who love making games.',
+      action: 'Explore workshops',
+    },
+    {
+      name: 'Showcase Night',
+      theme: 'yellow',
+      label: 'THE SHOW MUST GO ON',
+      text: 'See what the club has been building, share your experiments and celebrate the community.',
+      action: 'Find a showcase',
+    },
   ];
-  return <>
-    <section className={`hero container composition-${composition}`} aria-labelledby="hero-heading">
-      <div className="hero-copy">
-        <p className="eyebrow pixel">
-          <span aria-hidden="true">✣</span> GAME CREATORS  
-          <span className="yellow-text" aria-hidden="true"> OF </span> MONASH
-        </p>
-        <h1 id="hero-heading" aria-label="BUILD IT YOUR WAY">
-          <span className="hero-word" aria-hidden="true">
-            {'BUILD IT'.split('').map((letter, index) => <span className="hero-letter" key={index}>{letter === ' ' ? '\u00a0' : letter}</span>)}
-          </span>
-          <span className="hero-word" aria-hidden="true">
-            {'YOUR WAY'.split('').map((letter, index) => <span className="hero-letter" key={index}>{letter === ' ' ? '\u00a0' : letter}</span>)}
-          </span>
-        </h1>
-        <p className="hero-description">
-          Explore Game Development and Game Design with GCOM. Let's create cool experiences together!
-        </p>
-        <div className="hero-actions">
-          <a className="button" href={membership}>Join GCOM 
-            <span aria-hidden="true">→</span>
-          </a>
-          <a className="button secondary" href={local('#quests')}>Explore Game Jams</a>
+  return (
+    <>
+      <section
+        className={`hero container composition-${composition}`}
+        aria-labelledby="hero-heading"
+      >
+        <div className="hero-copy">
+          <p className="eyebrow pixel">
+            <span aria-hidden="true">✣</span> GAME CREATORS
+            <span className="yellow-text" aria-hidden="true">
+              {' '}
+              OF{' '}
+            </span>{' '}
+            MONASH
+          </p>
+          <h1 id="hero-heading" aria-label="BUILD IT YOUR WAY">
+            <span className="hero-word" aria-hidden="true">
+              {'BUILD IT'.split('').map((letter, index) => (
+                <span className="hero-letter" key={index}>
+                  {letter === ' ' ? '\u00a0' : letter}
+                </span>
+              ))}
+            </span>
+            <span className="hero-word" aria-hidden="true">
+              {'YOUR WAY'.split('').map((letter, index) => (
+                <span className="hero-letter" key={index}>
+                  {letter === ' ' ? '\u00a0' : letter}
+                </span>
+              ))}
+            </span>
+          </h1>
+          <p className="hero-description">
+            Explore Game Development and Game Design with GCOM. Let's create
+            cool experiences together!
+          </p>
+          <div className="hero-actions">
+            <a className="button" href={membership}>
+              Join GCOM
+              <span aria-hidden="true">→</span>
+            </a>
+            <a className="button secondary" href={local('#quests')}>
+              Explore Game Jams
+            </a>
+          </div>
         </div>
+        <Mascots />
+      </section>
+      <div className="divider pixel" aria-hidden="true">
+        <span>✣ +</span>
+        <span>
+          CREATE <b>+</b> COLLABORATE <b>+</b> PLAY <b>+</b> REPEAT
+        </span>
+        <span>+ ✣</span>
       </div>
-    <Mascots />
-    </section>
-    <div className="divider pixel" aria-hidden="true">
-      <span>✣ +</span>
-      <span>CREATE <b>+</b> COLLABORATE <b>+</b> PLAY <b>+</b> REPEAT</span>
-      <span>+ ✣</span>
-    </div>
-    <section className="quests-section container" id="quests" ref={questsSection} aria-labelledby="quests-heading">
-      <span className="eyebrow pixel">PICK YOUR ADVENTURE</span>
-      <h2 id="quests-heading">
-        <span className="heading-spark" aria-hidden="true">✣</span> Your Next Quest
-      </h2>
-      <div className="quest-grid">{quests.map(quest => <article className={`quest-card ${quest.theme}`} key={quest.name}>
-        <div className="quest-heading">
-          <span className="quest-symbol pixel" aria-hidden="true">{quest.theme === 'purple' ? '✣' : quest.theme === 'green' ? '</>' : '★'}</span>
-          <h3>{quest.name}</h3>
+      <section
+        className="quests-section container"
+        id="quests"
+        ref={questsSection}
+        aria-labelledby="quests-heading"
+      >
+        <span className="eyebrow pixel">PICK YOUR ADVENTURE</span>
+        <h2 id="quests-heading">
+          <span className="heading-spark" aria-hidden="true">
+            ✣
+          </span>{' '}
+          Your Next Quest
+        </h2>
+        <div className="quest-grid">
+          {quests.map((quest) => (
+            <article className={`quest-card ${quest.theme}`} key={quest.name}>
+              <div className="quest-heading">
+                <span className="quest-symbol pixel" aria-hidden="true">
+                  {quest.theme === 'purple'
+                    ? '✣'
+                    : quest.theme === 'green'
+                      ? '</>'
+                      : '★'}
+                </span>
+                <h3>{quest.name}</h3>
+              </div>
+              <p className="quest-label pixel">{quest.label}</p>
+              <p>{quest.text}</p>
+              <a className="text-link" href={local('#events')}>
+                {quest.action}
+                <span aria-hidden="true">→</span>
+              </a>
+              <img
+                className="quest-mascot"
+                src={local(
+                  `artwork/${art[quest.theme as 'purple' | 'green' | 'yellow']}`,
+                )}
+                alt=""
+                width="128"
+                height="128"
+                loading="lazy"
+              />
+            </article>
+          ))}
         </div>
-        <p className="quest-label pixel">{quest.label}</p>
-        <p>{quest.text}</p>
-          <a className="text-link" href={local('#events')}>{quest.action} 
-            <span aria-hidden="true">→</span>
-          </a>
-          <img className="quest-mascot" src={local(`artwork/${art[quest.theme as 'purple' | 'green' | 'yellow']}`)} alt="" width="128" height="128" loading="lazy" /></article>)}
-      </div>
-    </section>
-    <Events />
-    <Join />
-  </>;
+      </section>
+      <Events />
+      <Join />
+    </>
+  );
 }
 
 function About() {
@@ -196,24 +400,24 @@ function About() {
         <h1>About Us</h1>
         <p className="lead">
           We’re GCOM, the Monash University game development club. We bring
-          people together to explore how games are made and create something
-          of their own.
+          people together to explore how games are made and create something of
+          their own.
         </p>
       </section>
       <section className="about-content container">
         <div className="about-copy">
           <h2>Ideas are better together.</h2>
           <p>
-            Our mission is to make game development a shared experience: a
-            place to learn, experiment and find collaborators.
+            Our mission is to make game development a shared experience: a place
+            to learn, experiment and find collaborators.
           </p>
           <h2>Bring your curiosity.</h2>
           <p>
             You don’t need a finished game or years of experience to get
-            involved. Whether you’re interested in code, art, music, storytelling
-            or design, there’s something to explore.
+            involved. Whether you’re interested in code, art, music,
+            storytelling or design, there’s something to explore.
           </p>
-          <a className="button secondary" href={local("team/")}>
+          <a className="button secondary" href={local('team/')}>
             Meet the Team <span aria-hidden="true">→</span>
           </a>
         </div>
@@ -350,7 +554,9 @@ function Contact() {
             </p>
             <div className="membership-note">
               <h3>Ready to join?</h3>
-              <p>You can join directly through the Monash Student Association.</p>
+              <p>
+                You can join directly through the Monash Student Association.
+              </p>
               <a className="text-link" href={membership}>
                 Join the Club <span aria-hidden="true">↗</span>
               </a>
@@ -366,7 +572,7 @@ export function App({ page }: { page: PageName }) {
   const environment = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     let frame = 0;
 
     const updateParallax = () => {
@@ -375,21 +581,21 @@ export function App({ page }: { page: PageName }) {
         frame = 0;
         const scroll = window.scrollY;
         environment.current?.style.setProperty(
-          "--parallax-back",
-          `${scroll * 0.08}px`
+          '--parallax-back',
+          `${scroll * 0.08}px`,
         );
         environment.current?.style.setProperty(
-          "--parallax-front",
-          `${scroll * 0.035}px`
+          '--parallax-front',
+          `${scroll * 0.035}px`,
         );
       });
     };
 
-    window.addEventListener("scroll", updateParallax, { passive: true });
+    window.addEventListener('scroll', updateParallax, { passive: true });
     updateParallax();
 
     return () => {
-      window.removeEventListener("scroll", updateParallax);
+      window.removeEventListener('scroll', updateParallax);
       if (frame) cancelAnimationFrame(frame);
     };
   }, []);
@@ -402,11 +608,11 @@ export function App({ page }: { page: PageName }) {
       <div className="environment" ref={environment}>
         <Header page={page} />
         <main id="main-content">
-          {page === "home" ? (
+          {page === 'home' ? (
             <Home />
-          ) : page === "about" ? (
+          ) : page === 'about' ? (
             <About />
-          ) : page === "team" ? (
+          ) : page === 'team' ? (
             <Team />
           ) : (
             <Contact />
@@ -416,7 +622,7 @@ export function App({ page }: { page: PageName }) {
           <div className="container footer-inner">
             <a className="brand" href={local()}>
               <img
-                src={local("artwork/logo-original.png")}
+                src={local('artwork/logo-original.png')}
                 alt=""
                 width="48"
                 height="48"

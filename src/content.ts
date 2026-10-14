@@ -10,8 +10,7 @@ export const art = {
 export const calendar = '';
 export const composition = 'reference';
 export const local = (path = '') => `/${path}`;
-export const membership =
-  'https://clubs.msa.monash.edu/organisation/9329/';
+export const membership = 'https://clubs.msa.monash.edu/organisation/9329/';
 export const contact = 'kitsunies@gmail.com';
 
 export type PageName = 'home' | 'about' | 'team' | 'contact';
