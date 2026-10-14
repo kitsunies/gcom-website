@@ -16,8 +16,12 @@ __pycache__/
 *.pem
 *.key
 pb_data/
-/editor/state/
-/editor/backups/
+.dev.vars
+.dev.vars.*
+.cf/
+.cloudflare/
+.wrangler/
+/docs/cms.txt
 
 # Local tooling, instructions and session artifacts
 .orca/
@@ -59,3 +63,11 @@ Thumbs.db
 *.swp
 *.swo
 *~
+
+# Generated public CMS snapshot (fixtures are committed separately)
+apps/web/src/generated/
+apps/web/index.html
+apps/web/about/
+apps/web/team/
+apps/web/contact/
+.sanity/

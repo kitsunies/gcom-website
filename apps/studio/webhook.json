@@ -1,0 +1,21 @@
+{
+  "type": "document",
+  "name": "GCOM production Pages publication",
+  "url": "https://api.github.com/repos/kitsunies/gcom-website/actions/workflows/pages.yml/dispatches",
+  "dataset": "production",
+  "rule": {
+    "on": ["create", "update", "delete"],
+    "filter": "!((coalesce(after()._id, before()._id)) in path(\"drafts.**\")) && coalesce(after()._id, before()._id) in [\"settings\", \"navigation\", \"home\", \"about\", \"team\", \"contact\"]",
+    "projection": "{\"ref\": \"main\"}"
+  },
+  "apiVersion": "v2026-10-01",
+  "httpMethod": "POST",
+  "includeDrafts": false,
+  "includeAllVersions": false,
+  "headers": {
+    "Content-Type": "application/json",
+    "Accept": "application/vnd.github+json",
+    "X-GitHub-Api-Version": "2026-03-10"
+  },
+  "isDisabledByUser": true
+}

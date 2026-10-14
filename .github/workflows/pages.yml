@@ -2,8 +2,14 @@ name: Public website
 on:
   push:
     branches: [main, master]
-    paths-ignore: ['editor/**']
+    paths-ignore: ['apps/contact/**']
   workflow_dispatch:
+    inputs:
+      dataset:
+        description: Sanity dataset to validate (staging never deploys)
+        type: choice
+        options: [production, staging]
+        default: production
   schedule:
     - cron: '*/30 * * * *'
 permissions:
@@ -13,12 +19,16 @@ concurrency:
   cancel-in-progress: false
 jobs:
   build:
+    if: github.event_name == 'workflow_dispatch' || vars.SANITY_PUBLICATION_ENABLED == 'true'
     runs-on: ubuntu-latest
+    outputs:
+      dataset: ${{ steps.dataset.outputs.name }}
     env:
+      CONTENT_SOURCE: sanity
+      SANITY_PROJECT_ID: ${{ vars.SANITY_PROJECT_ID }}
+      SANITY_DATASET: ${{ inputs.dataset || vars.SANITY_DATASET || 'production' }}
       SITE_ORIGIN: ${{ vars.SITE_ORIGIN || 'https://gcom.techtom.tech' }}
       SITE_BASE: ${{ vars.SITE_BASE || '/' }}
-      VITE_CALENDAR_URL: ${{ vars.LUMA_CALENDAR_URL }}
-      VITE_CONTACT_EMAIL: ${{ vars.CLUB_CONTACT_EMAIL }}
       VITE_CONTACT_ENDPOINT: ${{ vars.CONTACT_ENDPOINT }}
     steps:
       - uses: actions/checkout@v4
@@ -26,14 +36,35 @@ jobs:
         with:
           node-version: '22'
           cache: npm
+          cache-dependency-path: package-lock.json
+      - id: dataset
+        name: Record selected dataset
+        run: echo "name=$SANITY_DATASET" >> "$GITHUB_OUTPUT"
       - run: npm ci
+      - name: Fetch and validate published CMS content once
+        env:
+          SANITY_READ_TOKEN: ${{ secrets.SANITY_READ_TOKEN }}
+        run: npm run sync:content
+      - run: npm run format:check
       - run: npm test
+      - name: Typecheck Studio
+        working-directory: apps/studio
+        env:
+          SANITY_STUDIO_PROJECT_ID: ${{ env.SANITY_PROJECT_ID }}
+          SANITY_STUDIO_DATASET: ${{ env.SANITY_DATASET }}
+        run: npm run typecheck
+      - name: Build Studio
+        working-directory: apps/studio
+        env:
+          SANITY_STUDIO_PROJECT_ID: ${{ env.SANITY_PROJECT_ID }}
+          SANITY_STUDIO_DATASET: ${{ env.SANITY_DATASET }}
+        run: npm run build
       - uses: actions/cache@v4
         with:
-          path: public/data/events.json
-          key: gcom-calendar-v1-${{ github.run_id }}
+          path: apps/web/public/data/events.json
+          key: gcom-calendar-v1-${{ github.run_id }}-${{ github.run_attempt }}
           restore-keys: gcom-calendar-v1-
-      - name: Import published club events
+      - name: Import published club events using the CMS calendar destination
         id: calendar
         continue-on-error: true
         env:
@@ -44,16 +75,20 @@ jobs:
         run: echo '::warning::Calendar sync failed. This release uses the last valid snapshot.'
       - name: Require a previous snapshot on sync failure
         if: steps.calendar.outcome == 'failure'
-        run: node -e 'if (!require("./public/data/events.json").updatedAt) throw new Error("No previous calendar snapshot is available. Preserve the existing release.")'
-      - run: npm run build
+        run: node -e 'if (!require("./apps/web/public/data/events.json").updatedAt) throw new Error("No previous calendar snapshot is available. Preserve the existing release.")'
+      - name: Build the validated snapshot without fetching CMS again
+        run: npm run build:snapshot
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:browser
       - name: Custom domain
         if: env.SITE_BASE == '/'
-        run: node -e 'require("node:fs").writeFileSync("dist/CNAME", new URL(process.env.SITE_ORIGIN).hostname + "\n")'
+        run: node -e 'require("node:fs").writeFileSync("apps/web/dist/CNAME", new URL(process.env.SITE_ORIGIN).hostname + "\n")'
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: dist
+          path: apps/web/dist
   deploy:
     needs: build
+    if: vars.SANITY_PUBLICATION_ENABLED == 'true' && github.ref == 'refs/heads/main' && needs.build.outputs.dataset == 'production'
     runs-on: ubuntu-latest
     permissions:
       pages: write

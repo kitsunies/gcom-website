@@ -1,0 +1,26 @@
+{
+  "name": "@gcom/studio",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "sanity dev --host 0.0.0.0",
+    "build": "sanity build",
+    "typecheck": "tsc --noEmit",
+    "test": "tsx --test *.test.ts",
+    "seed": "tsx seed.ts"
+  },
+  "dependencies": {
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "sanity": "6.18.0",
+    "styled-components": "6.6.0"
+  },
+  "devDependencies": {
+    "@types/node": "22.19.15",
+    "@types/react": "19.2.14",
+    "groq-js": "2.0.0",
+    "typescript": "5.9.3",
+    "tsx": "^4.0.0"
+  }
+}

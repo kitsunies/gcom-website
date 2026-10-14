@@ -1,0 +1,14 @@
+node_modules/
+dist/
+.build/
+apps/web/public/artwork/
+package-lock.json
+apps/web/index.html
+apps/web/about/
+apps/web/team/
+apps/web/contact/
+apps/web/src/generated/
+.sanity/
+.cf/
+.cloudflare/
+.wrangler/
