@@ -1,17 +1,15 @@
-import { Icon } from './Icon';
 import { useEffect, useRef, useState } from 'react';
 import { settings, asset } from '../content';
 const art = settings.artwork;
-const motion = {
-  create: 'CREATE',
-  play: 'PLAY',
-  pauseLabel: 'Pause animations',
-  playLabel: 'Play animations',
-};
 export function Mascots() {
   const [paused, setPaused] = useState(false);
-  const group = useRef<HTMLDivElement>(null);
+  const [reducedMotion, setReducedMotion] = useState(false);
+  const group = useRef<HTMLSpanElement>(null);
   useEffect(() => {
+    const preference = matchMedia('(prefers-reduced-motion: reduce)');
+    const syncPreference = () => setReducedMotion(preference.matches);
+    syncPreference();
+    preference.addEventListener('change', syncPreference);
     let visible = false;
     const sync = () =>
       group.current?.setAttribute(
@@ -25,47 +23,57 @@ export function Mascots() {
     if (group.current) observer.observe(group.current);
     document.addEventListener('visibilitychange', sync);
     return () => {
+      preference.removeEventListener('change', syncPreference);
       observer.disconnect();
       document.removeEventListener('visibilitychange', sync);
     };
   }, []);
   return (
     <div className="mascot-area">
-      <div
-        className="mascots"
-        ref={group}
-        data-visible="false"
-        data-paused={paused}
-        aria-hidden="true"
-      >
-        <div className="mascot-glow" />
-        {(['green', 'cross', 'yellow', 'coral', 'hero'] as const).map((key) => (
-          <img
-            key={key}
-            className={`mascot character-${key}`}
-            src={asset(art[key])}
-            alt={art[key].alt}
-            width="128"
-            height="128"
-            loading={key === 'hero' ? 'eager' : 'lazy'}
-            fetchPriority={key === 'hero' ? 'high' : 'auto'}
-          />
-        ))}
-        <span className="spark spark-one">+</span>
-        <span className="spark spark-two">+</span>
-        <span className="spark spark-three">+</span>
-        <span className="spark spark-four">+</span>
-        <div className="mascot-ground" />
-        <span className="scene-label label-create">{motion.create}</span>
-        <span className="scene-label label-play">{motion.play}</span>
-      </div>
       <button
-        className="motion-toggle"
-        onClick={() => setPaused(!paused)}
+        type="button"
+        className="mascot-scene"
+        aria-label={
+          paused ? 'Play mascot animations' : 'Pause mascot animations'
+        }
         aria-pressed={paused}
+        title={paused ? 'Play mascot animations' : 'Pause mascot animations'}
+        disabled={reducedMotion}
+        onClick={() => setPaused(!paused)}
       >
-        {paused ? motion.playLabel : motion.pauseLabel}{' '}
-        <Icon name={paused ? 'play' : 'pause'} />
+        <span
+          className="mascots"
+          ref={group}
+          data-visible="false"
+          data-paused={paused}
+          aria-hidden="true"
+        >
+          <span className="mascot-glow" />
+          {(['green', 'cross', 'yellow', 'coral', 'hero'] as const).map(
+            (key) => (
+              <img
+                key={key}
+                className={`mascot character-${key}`}
+                src={asset(art[key])}
+                alt={art[key].alt}
+                width="128"
+                height="128"
+                loading={key === 'hero' ? 'eager' : 'lazy'}
+                fetchPriority={key === 'hero' ? 'high' : 'auto'}
+              />
+            ),
+          )}
+          <span className="spark spark-one">+</span>
+          <span className="spark spark-two">+</span>
+          <span className="spark spark-three">+</span>
+          <span className="spark spark-four">+</span>
+          <span className="spark spark-five">+</span>
+          <span className="spark spark-six">+</span>
+          <span className="spark spark-seven">+</span>
+          <span className="spark spark-eight">+</span>
+          <span className="spark spark-nine">+</span>
+          <span className="mascot-ground" />
+        </span>
       </button>
     </div>
   );

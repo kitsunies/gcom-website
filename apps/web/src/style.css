@@ -1,14 +1,15 @@
 @import '@fontsource/nova-square/latin-400.css';
+@import '@fontsource/pixelify-sans/latin-700.css';
 @import '@fontsource/aldrich/latin-400.css';
 @import '@fontsource/ibm-plex-mono/latin-700-italic.css';
 
 :root {
-  --bg: #1c1c1c;
+  --bg: #202020;
   --surface: #292929;
   --fg: #f5f1f9;
   --muted: #d3ccd9;
-  --lavender: #b395e8;
-  --deep-purple: #8964c2;
+  --lavender: #af91e7;
+  --deep-purple: #7c68a1;
   --yellow: #f5de80;
   --green: #83e986;
   --blue: #8bb7f1;
@@ -123,7 +124,7 @@ p {
   color: var(--yellow);
 }
 .brand .yellow-text {
-  font-family: var(--display);
+  font: inherit;
 }
 .skip-link {
   position: fixed;
@@ -142,55 +143,20 @@ p {
   position: relative;
   isolation: isolate;
   overflow: clip;
-  background:
-    radial-gradient(ellipse at 50% 0%, #382b4a 0, transparent 46%), var(--bg);
+  background: var(--bg);
 }
-
-.environment::before,
-.environment::after {
+.environment::before {
   content: '';
   position: absolute;
   inset: 0;
   z-index: -1;
   pointer-events: none;
+  background: url('/artwork/environment.svg') center top / cover no-repeat;
 }
-
-.environment::before {
-  opacity: 0.24;
-  background-image:
-    radial-gradient(circle, #b395e8 1px, transparent 1.5px),
-    conic-gradient(
-      from 90deg,
-      #48464e 25%,
-      transparent 0 50%,
-      #48464e 0 75%,
-      transparent 0
-    ),
-    repeating-linear-gradient(
-      35deg,
-      transparent 0 280px,
-      #3f3d46 280px 304px,
-      transparent 304px 640px
-    );
-  background-size:
-    180px 180px,
-    96px 96px,
-    960px 640px;
-  mask-image: linear-gradient(
-    90deg,
-    #000,
-    transparent 27%,
-    transparent 68%,
-    #000
-  );
-}
-
-.environment::after {
-  opacity: 0.8;
-  background:
-    radial-gradient(ellipse at 12% 18%, #8964c222, transparent 32%),
-    radial-gradient(ellipse at 86% 56%, #8bb7f114, transparent 30%),
-    radial-gradient(ellipse at 46% 92%, #ef89930c, transparent 38%);
+@media (max-width: 900px) {
+  .environment::before {
+    background-image: url('/artwork/environment-mobile.svg');
+  }
 }
 
 .site-header {
@@ -217,7 +183,9 @@ p {
 }
 .brand > span {
   color: var(--lavender);
-  font: 400 clamp(24px, 5vw, 32px)/1 var(--body);
+  font:
+    700 clamp(24px, 5vw, 32px)/1 'Pixelify Sans',
+    sans-serif;
   letter-spacing: -1px;
 }
 .nav {
@@ -353,7 +321,21 @@ p {
   position: relative;
   align-self: center;
 }
+.mascot-scene {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: inherit;
+}
+.mascot-scene:disabled {
+  cursor: default;
+}
 .mascots {
+  display: block;
+  width: 100%;
   height: 520px;
   position: relative;
 }
@@ -363,7 +345,7 @@ p {
   height: auto;
   object-fit: contain;
   filter: drop-shadow(0 12px 0 #12121866);
-  animation: mascot-bob 5.5s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+  animation: mascot-bob 4.8s cubic-bezier(0.45, 0, 0.55, 1) infinite;
   animation-play-state: paused;
 }
 .mascots[data-visible='true'][data-paused='false']
@@ -381,33 +363,33 @@ p {
   left: 0;
   top: 0;
   transform: rotate(-10deg);
-  animation-duration: 5.5s;
+  animation-duration: 4.8s;
 }
 .mascot.character-cross {
   right: 0;
   top: 7%;
   transform: rotate(10deg);
-  animation-duration: 6s;
+  animation-duration: 4.8s;
   animation-delay: -1.8s;
 }
 .mascot.character-yellow {
   left: 0;
   bottom: 5%;
   transform: rotate(-8deg);
-  animation-duration: 5.8s;
+  animation-duration: 4.8s;
   animation-delay: -2.4s;
 }
 .mascot.character-coral {
   right: 0;
   bottom: 5%;
   transform: rotate(10deg);
-  animation-duration: 5.2s;
+  animation-duration: 4.8s;
   animation-delay: -1s;
 }
 .mascot-glow {
   position: absolute;
   inset: 8%;
-  background: radial-gradient(ellipse, #8964c233, transparent 68%);
+  background: radial-gradient(ellipse, #af91e71f, transparent 68%);
 }
 .spark {
   position: absolute;
@@ -447,38 +429,34 @@ p {
   bottom: 0;
   color: var(--blue);
 }
-.scene-label {
-  position: absolute;
+.spark-five {
+  left: 42%;
+  top: 20%;
+}
+.spark-six {
+  left: 21%;
+  bottom: 6%;
   color: var(--lavender);
-  font: 400 16px/1 var(--display);
-  letter-spacing: 2px;
-  opacity: 0.8;
 }
-.label-create {
-  top: 27%;
-  left: 8%;
-  transform: rotate(-12deg);
+.spark-seven {
+  left: 7%;
+  top: 58%;
+  color: var(--green);
 }
-.label-play {
-  bottom: 32%;
-  right: 2%;
-  transform: rotate(12deg);
+.spark-eight {
+  right: 24%;
+  top: 26%;
+  color: var(--blue);
 }
-.motion-toggle {
-  display: flex;
-  align-items: center;
-  gap: var(--s2);
-  margin-left: auto;
-  margin-top: var(--s3);
-  min-height: 44px;
-  border: 0;
-  color: var(--muted);
-  background: transparent;
-  font-size: 12px;
-  padding: var(--s2);
+.spark-nine {
+  right: 27%;
+  bottom: 21%;
+  color: var(--coral);
 }
-.motion-toggle:hover {
-  color: var(--lavender);
+#quests-heading,
+#events-heading {
+  font-family: 'Pixelify Sans', sans-serif;
+  font-weight: 700;
 }
 .divider {
   min-height: 48px;
@@ -490,6 +468,7 @@ p {
   background: var(--yellow);
   color: #1c1c1c;
   font-size: 20px;
+  font-weight: 700;
   letter-spacing: 1px;
 }
 .divider b {
@@ -695,7 +674,6 @@ p {
   margin-top: var(--s2);
 }
 .footer {
-  background: #171719;
   border-top: 2px solid #363139;
   padding-block: var(--s8);
 }
@@ -724,6 +702,20 @@ p {
   display: inline-flex;
   align-items: center;
   gap: var(--s2);
+}
+:is(
+  .join-section,
+  .page-intro,
+  .about-content,
+  .team-section,
+  .contact-section
+) {
+  --display: 'Pixelify Sans', sans-serif;
+  --shadow-display: 2px 3px 0 #514062;
+}
+:is(.join-section, .page-intro, .about-content, .team-section, .contact-section)
+  :is(h1, h2, h3, .pixel) {
+  font-weight: 700;
 }
 .page-intro {
   padding-block: var(--s16) var(--s12);
@@ -1030,12 +1022,6 @@ p {
   bottom: 0;
   width: 96px;
 }
-.composition-stage .motion-toggle {
-  margin-top: 0;
-}
-.composition-stage .scene-label {
-  display: none;
-}
 @keyframes mascot-bob {
   0%,
   100% {
@@ -1090,15 +1076,10 @@ p {
   }
 }
 @supports (animation-timeline: scroll()) {
-  .environment::before,
-  .environment::after {
+  .environment::before {
+    inset-block: -4vh;
     animation: background-drift linear both;
     animation-timeline: scroll(root);
-  }
-  .environment::before {
-    --drift: 8vh;
-  }
-  .environment::after {
     --drift: 4vh;
   }
 }
@@ -1394,8 +1375,7 @@ p {
     bottom: 8%;
   }
   .mascot.character-cross,
-  .mascot.character-coral,
-  .scene-label {
+  .mascot.character-coral {
     display: none;
   }
   .spark {
@@ -1408,8 +1388,26 @@ p {
   .spark-four {
     bottom: 0;
   }
-  .motion-toggle {
-    margin-top: 0;
+  .spark-five {
+    left: 54%;
+    top: 8%;
+  }
+  .spark-six {
+    left: 9%;
+    bottom: 8%;
+  }
+  .spark-seven {
+    left: 3%;
+    top: 67%;
+  }
+  .spark-eight {
+    right: 8%;
+    top: 43%;
+  }
+  .spark-nine {
+    left: 70%;
+    right: auto;
+    bottom: 2%;
   }
   .divider {
     font-size: 12px;
@@ -1524,9 +1522,6 @@ p {
   *::after {
     animation: none !important;
     transition: none !important;
-  }
-  .motion-toggle {
-    display: none;
   }
   .hero-word,
   .hero-letter {
