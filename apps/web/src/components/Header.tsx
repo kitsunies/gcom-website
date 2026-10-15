@@ -1,13 +1,27 @@
 import { Icon } from './Icon';
 import { useEffect, useRef, useState } from 'react';
 import {
-  content,
+  settings,
   asset,
   href,
   local,
   membership,
   type PageName,
 } from '../content';
+const navigation = {
+  brandLabel: 'GCOM home',
+  menuOpen: 'Menu',
+  menuClose: 'Close',
+  label: 'Main navigation',
+  links: [
+    { key: 'home', label: 'Home', url: '' },
+    { key: 'events', label: 'Events', url: '#events' },
+    { key: 'about', label: 'About Us', url: 'about/' },
+    { key: 'team', label: 'Meet the Team', url: 'team/' },
+    { key: 'contact', label: 'Contact', url: 'contact/' },
+  ],
+  joinLabel: 'Join the Club',
+};
 export function Header({ page }: { page: PageName }) {
   const [open, setOpen] = useState(false);
   const toggle = useRef<HTMLButtonElement>(null);
@@ -29,27 +43,21 @@ export function Header({ page }: { page: PageName }) {
       window.removeEventListener('resize', resize);
     };
   }, [open]);
-  const { links } = content.navigation;
+  const { links } = navigation;
   return (
     <header className="site-header">
       <div className="container header-inner">
-        <a
-          className="brand"
-          href={local()}
-          aria-label={content.navigation.brandLabel}
-        >
+        <a className="brand" href={local()} aria-label={navigation.brandLabel}>
           <img
-            src={asset(content.settings.logo)}
-            alt={content.settings.logo.alt}
+            src={asset(settings.logo)}
+            alt={settings.logo.alt}
             width="36"
             height="36"
           />
           <span>
-            {content.settings.brand.before}
-            <span className="yellow-text">
-              {content.settings.brand.highlight}
-            </span>
-            {content.settings.brand.after}
+            {settings.brand.before}
+            <span className="yellow-text">{settings.brand.highlight}</span>
+            {settings.brand.after}
           </span>
         </a>
         <button
@@ -59,13 +67,13 @@ export function Header({ page }: { page: PageName }) {
           aria-controls="main-navigation"
           onClick={() => setOpen(!open)}
         >
-          {open ? content.navigation.menuClose : content.navigation.menuOpen}{' '}
+          {open ? navigation.menuClose : navigation.menuOpen}{' '}
           <span aria-hidden="true">{open ? '×' : '+'}</span>
         </button>
         <nav
           id="main-navigation"
           className={open ? 'nav open' : 'nav'}
-          aria-label={content.navigation.label}
+          aria-label={navigation.label}
         >
           {links.map(({ key, url, label }) => (
             <a
@@ -78,7 +86,7 @@ export function Header({ page }: { page: PageName }) {
             </a>
           ))}
           <a className="button small" href={membership}>
-            {content.navigation.joinLabel} <Icon name="arrow-up-right" />
+            {navigation.joinLabel} <Icon name="arrow-up-right" />
           </a>
         </nav>
       </div>

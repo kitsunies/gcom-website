@@ -1,6 +1,13 @@
 import { Icon } from './Icon';
 import { useEffect, useRef, useState } from 'react';
-import { content, asset, art } from '../content';
+import { settings, asset } from '../content';
+const art = settings.artwork;
+const motion = {
+  create: 'CREATE',
+  play: 'PLAY',
+  pauseLabel: 'Pause animations',
+  playLabel: 'Play animations',
+};
 export function Mascots() {
   const [paused, setPaused] = useState(false);
   const group = useRef<HTMLDivElement>(null);
@@ -49,21 +56,15 @@ export function Mascots() {
         <span className="spark spark-three">+</span>
         <span className="spark spark-four">+</span>
         <div className="mascot-ground" />
-        <span className="scene-label label-create">
-          {content.navigation.motion.create}
-        </span>
-        <span className="scene-label label-play">
-          {content.navigation.motion.play}
-        </span>
+        <span className="scene-label label-create">{motion.create}</span>
+        <span className="scene-label label-play">{motion.play}</span>
       </div>
       <button
         className="motion-toggle"
         onClick={() => setPaused(!paused)}
         aria-pressed={paused}
       >
-        {paused
-          ? content.navigation.motion.playLabel
-          : content.navigation.motion.pauseLabel}{' '}
+        {paused ? motion.playLabel : motion.pauseLabel}{' '}
         <Icon name={paused ? 'play' : 'pause'} />
       </button>
     </div>

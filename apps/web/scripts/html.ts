@@ -1,12 +1,11 @@
 import { mkdir, readFile, stat, writeFile } from 'node:fs/promises';
 import { validateEvents, safeHttps } from './validate-content';
-import { validateSiteContent, snapshotFile } from './site-content';
+import { settings } from '../src/content';
+import { pageMetadata } from './page-metadata';
 import { pageHtml, pagePaths } from './page-metadata';
 import { loadEnv } from 'vite';
 
 const env = { ...loadEnv('production', process.cwd(), ''), ...process.env };
-const content: unknown = JSON.parse(await readFile(snapshotFile, 'utf8'));
-validateSiteContent(content);
 validateEvents(JSON.parse(await readFile('public/data/events.json', 'utf8')));
 const checkMedia = async (value: unknown): Promise<void> => {
   if (!value || typeof value !== 'object') return;
@@ -14,7 +13,7 @@ const checkMedia = async (value: unknown): Promise<void> => {
     await stat(`public/${value.src}`);
   else await Promise.all(Object.values(value).map(checkMedia));
 };
-await checkMedia(content);
+await checkMedia({ ...settings, metadata: pageMetadata });
 if (env.VITE_CONTACT_ENDPOINT) {
   const endpoint = new URL(env.VITE_CONTACT_ENDPOINT);
   const [first, second] = endpoint.hostname.split('.').map(Number);
@@ -49,6 +48,6 @@ for (const [page, path] of Object.entries(pagePaths)) {
   if (path) await mkdir(path, { recursive: true });
   await writeFile(
     `${path}index.html`,
-    pageHtml(content, page as keyof typeof pagePaths, origin, base),
+    pageHtml(page as keyof typeof pagePaths, origin, base),
   );
 }

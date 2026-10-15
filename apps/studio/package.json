@@ -9,7 +9,8 @@
     "build": "sanity build",
     "typecheck": "tsc --noEmit",
     "test": "tsx --test *.test.ts",
-    "seed": "tsx seed.ts"
+    "seed": "tsx seed.ts",
+    "migrate:roster": "tsx migrate-roster.ts"
   },
   "dependencies": {
     "react": "19.2.8",

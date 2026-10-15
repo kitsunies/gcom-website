@@ -1,16 +1,18 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { siteLink } from '../src/links';
 import { href } from '../src/content';
-import { safeLink } from '../scripts/site-content';
 
-test('all accepted HTTPS spellings remain external links', () => {
+test('HTTPS destinations remain external and page links keep the configured base', () => {
   for (const value of [
     'HTTPS://example.test/path',
     ' https://example.test/path ',
     'https:example.test/path',
     'https:\\example.test/path',
   ]) {
-    assert(safeLink(value));
+    assert.equal(siteLink(value, '/repo/'), 'https://example.test/path');
     assert.equal(href(value), 'https://example.test/path');
   }
+  assert.equal(siteLink('about/', '/repo/'), '/repo/about/');
+  assert.equal(siteLink('#events', '/repo/'), '/repo/#events');
 });

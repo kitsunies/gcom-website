@@ -1,0 +1,20 @@
+{
+  "members": [
+    {
+      "id": "fictional-ada",
+      "name": "Ada Example",
+      "role": "Fictional President",
+      "photo": {
+        "src": "artwork/purple-original-web.webp",
+        "alt": "Fictional illustration for Ada Example"
+      },
+      "links": [{ "label": "Portfolio", "url": "https://ada.example.test" }]
+    },
+    {
+      "id": "fictional-lin",
+      "name": "Lin Sample",
+      "role": "Fictional Treasurer",
+      "links": []
+    }
+  ]
+}

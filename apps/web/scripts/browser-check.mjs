@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
-import { mkdtemp, readFile, rm, stat } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, rm, stat } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { extname, resolve, sep } from 'node:path';
 import { chromium } from 'playwright';
@@ -9,9 +9,28 @@ import { build, loadEnv } from 'vite';
 
 const env = { ...loadEnv('production', process.cwd(), ''), ...process.env };
 const base = env.SITE_BASE || '/';
-const snapshot = JSON.parse(
-  await readFile('src/generated/site-content.json', 'utf8'),
-);
+const membershipUrl = 'https://clubs.msa.monash.edu/organisation/9329/';
+const contactEmail = 'kitsunies@gmail.com';
+const expectedFooterLinks = [
+  ['Join the Club', membershipUrl],
+  ['Instagram', 'https://www.instagram.com/gcom_club/'],
+  ['Discord', 'https://discord.com/invite/KmMVxTY2E'],
+];
+const motionLabels = { play: 'Play animations', pause: 'Pause animations' };
+const contactMessages = {
+  success:
+    'Message sent. Thanks for getting in touch! We’ll reply to the email address you provided.',
+  invalid: 'Please check your name, email, subject and message.',
+  tooLarge: 'Message is too large.',
+  rateLimited:
+    'Too many messages in a short time. Please try again later, or email us directly.',
+  unreachable:
+    'We couldn’t reach the message service. Your draft is still here. Try again, or use the email link below.',
+  failed:
+    'We couldn’t send your message right now. Your draft is still here. Try again, or use the email link below.',
+  unavailable:
+    'Message delivery is temporarily unavailable. You can send your message using the email link below.',
+};
 assert.match(base, /^\/(?:[A-Za-z0-9_-]+\/)*$/);
 const types = {
   '.html': 'text/html',
@@ -51,6 +70,18 @@ async function serve(directory, mountBase = base) {
   };
 }
 
+const evidence = env.BROWSER_EVIDENCE_DIR;
+if (evidence) await mkdir(evidence, { recursive: true });
+const isSanityHost = (host) =>
+  host === 'sanity.io' ||
+  host.endsWith('.sanity.io') ||
+  host === 'sanity-cdn.com' ||
+  host.endsWith('.sanity-cdn.com');
+const isSanityProjectHost = (host) =>
+  host === 'cdn.sanity.io' ||
+  host.endsWith('.cdn.sanity.io') ||
+  host.endsWith('.api.sanity.io') ||
+  host.endsWith('.apicdn.sanity.io');
 const server = await serve('dist');
 let browser;
 const temporary = [];
@@ -60,13 +91,53 @@ try {
   const studioPage = await browser.newPage();
   try {
     // Test anonymous startup without granting each ephemeral origin project CORS access.
-    await studioPage.route('https://*.api.sanity.io/**/users/me?*', (route) =>
-      route.fulfill({
-        status: 401,
-        contentType: 'application/json',
-        body: JSON.stringify({ error: 'Unauthorized' }),
-      }),
-    );
+    const unexpectedStudioRequests = [];
+    await studioPage.route('**/*', async (route) => {
+      const url = new URL(route.request().url());
+      if (!isSanityHost(url.hostname)) return route.continue();
+      if (!isSanityProjectHost(url.hostname)) return route.abort();
+      if (
+        url.hostname.endsWith('.api.sanity.io') &&
+        url.pathname.endsWith('/users/me')
+      )
+        return route.fulfill({
+          status: 401,
+          contentType: 'application/json',
+          body: JSON.stringify({ error: 'Unauthorized' }),
+        });
+      if (
+        url.hostname.endsWith('.api.sanity.io') &&
+        url.pathname.endsWith('/auth/providers')
+      )
+        return route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({
+            thirdPartyLogin: false,
+            sso: { saml: false },
+            providers: [
+              {
+                name: 'google',
+                title: 'Google',
+                url: 'https://example.invalid/auth/google',
+              },
+              {
+                name: 'github',
+                title: 'GitHub',
+                url: 'https://example.invalid/auth/github',
+              },
+              {
+                name: 'sanity',
+                title: 'E-mail / password',
+                url: 'https://example.invalid/auth/sanity',
+                signUpUrl: 'https://example.invalid/signup',
+              },
+            ],
+          }),
+        });
+      unexpectedStudioRequests.push(url.href);
+      return route.abort();
+    });
     await studioPage.goto(studio.url, { waitUntil: 'networkidle' });
     await studioPage.waitForFunction(() =>
       /Choose login provider|Uncaught error|Set SANITY_STUDIO_/i.test(
@@ -76,6 +147,11 @@ try {
     const text = await studioPage.locator('body').innerText();
     assert.doesNotMatch(text, /Uncaught error|Set SANITY_STUDIO_/);
     assert.match(text, /Choose login provider/i);
+    assert.deepEqual(
+      unexpectedStudioRequests,
+      [],
+      'Studio startup must not make unmocked project API requests',
+    );
     console.log('Built Studio: browser configuration and sign-in passed');
   } finally {
     await studioPage.close();
@@ -85,11 +161,20 @@ try {
     { width: 1440, height: 1000 },
     { width: 390, height: 844 },
   ]) {
-    const context = await browser.newContext({ viewport });
+    const context = await browser.newContext({
+      viewport,
+      deviceScaleFactor: viewport.width === 390 ? 3 : 1,
+    });
     for (const path of ['', 'about/', 'team/', 'contact/']) {
       const page = await context.newPage();
       const errors = [];
       const cmsRequests = [];
+      await page.route('**/*', async (route) => {
+        const url = new URL(route.request().url());
+        if (!isSanityHost(url.hostname)) return route.continue();
+        cmsRequests.push(url.href);
+        return route.abort();
+      });
       page.on('pageerror', (error) => errors.push(error.message));
       page.on('console', (message) => {
         if (
@@ -104,13 +189,6 @@ try {
       page.on('response', (response) => {
         if (response.status() >= 400)
           errors.push(`${response.status()} ${response.url()}`);
-      });
-      page.on('request', (request) => {
-        if (
-          new URL(request.url()).hostname.endsWith('.api.sanity.io') ||
-          new URL(request.url()).hostname.endsWith('.apicdn.sanity.io')
-        )
-          cmsRequests.push(request.url());
       });
       const html = await (await context.request.get(server.url + path)).text();
       assert.match(
@@ -166,20 +244,7 @@ try {
             link.getAttribute('href'),
           ]),
         ),
-        [
-          [
-            snapshot.navigation.footer.joinLabel,
-            snapshot.settings.membershipUrl,
-          ],
-          [
-            snapshot.navigation.footer.instagram.label,
-            snapshot.navigation.footer.instagram.url,
-          ],
-          [
-            snapshot.navigation.footer.discord.label,
-            snapshot.navigation.footer.discord.url,
-          ],
-        ],
+        expectedFooterLinks,
       );
       const footerRows = await footerLinks.evaluateAll((links) =>
         links.map((link) => {
@@ -209,10 +274,7 @@ try {
         await toggle.focus();
         await page.keyboard.press('Enter');
         assert.equal(await toggle.getAttribute('aria-pressed'), 'true');
-        assert.equal(
-          (await toggle.textContent()).trim(),
-          snapshot.navigation.motion.playLabel,
-        );
+        assert.equal((await toggle.textContent()).trim(), motionLabels.play);
         assert.equal(
           await toggle.locator('svg[aria-hidden="true"]').count(),
           1,
@@ -226,10 +288,7 @@ try {
         );
         await page.keyboard.press('Space');
         assert.equal(await toggle.getAttribute('aria-pressed'), 'false');
-        assert.equal(
-          (await toggle.textContent()).trim(),
-          snapshot.navigation.motion.pauseLabel,
-        );
+        assert.equal((await toggle.textContent()).trim(), motionLabels.pause);
         assert.equal(
           await toggle
             .locator('..')
@@ -338,6 +397,13 @@ try {
         [],
         `${path} ${viewport.width}px browser errors`,
       );
+      if (!path && evidence) {
+        await page.evaluate(() => document.activeElement?.blur());
+        await page.screenshot({
+          path: `${evidence}/home-${viewport.width === 390 ? 'mobile-390x844-dpr3' : 'desktop-1440x1000'}.png`,
+          fullPage: true,
+        });
+      }
       console.log(
         `${path || '/'} ${viewport.width}px: prerender, assets, fonts, overflow, axe, keyboard and reduced motion passed`,
       );
@@ -346,7 +412,7 @@ try {
     await context.close();
   }
 
-  // Compile isolated contact fixtures against the same snapshot; never fetch CMS or overwrite dist.
+  // Compile isolated contact fixtures without CMS access or overwriting dist.
   for (const endpoint of ['', 'https://contact.browser-test.invalid/message']) {
     const directory = await mkdtemp(resolve(tmpdir(), 'gcom-browser-'));
     temporary.push(directory);
@@ -417,10 +483,7 @@ try {
         if (status === 'success') {
           const notice = page.locator('.form-feedback.success[role="status"]');
           await notice.waitFor();
-          assert.equal(
-            await notice.textContent(),
-            snapshot.contact.form.success,
-          );
+          assert.equal(await notice.textContent(), contactMessages.success);
           for (const name of Object.keys(draft))
             assert.equal(
               await page.locator(`[name="${name}"]`).inputValue(),
@@ -432,7 +495,7 @@ try {
           assert.equal(await page.locator('fieldset').isDisabled(), false);
           assert.equal(
             await page.locator('.direct-email a').getAttribute('href'),
-            `mailto:${snapshot.settings.contactEmail}`,
+            `mailto:${contactEmail}`,
           );
           assert.equal(calls, 1);
           assert.deepEqual(errors, []);
@@ -454,7 +517,7 @@ try {
                   : endpoint
                     ? 'failed'
                     : 'unavailable';
-        assert.equal(await alert.textContent(), snapshot.contact.form[message]);
+        assert.equal(await alert.textContent(), contactMessages[message]);
         for (const [name, value] of Object.entries(draft))
           assert.equal(
             await page.locator(`[name="${name}"]`).inputValue(),

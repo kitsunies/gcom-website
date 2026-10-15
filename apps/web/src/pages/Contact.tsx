@@ -1,8 +1,57 @@
 import { Icon } from '../components/Icon';
-import { content, asset, href, membership } from '../content';
+import { asset, membership } from '../content';
 import { ContactForm } from '../ContactForm';
+const contactCopy = {
+  intro: {
+    eyebrow: 'LET’S CONNECT',
+    title: 'Contact',
+    lead: 'Have a question, an idea for a collaboration or something you’d like to share with the club?',
+  },
+  image: { src: 'artwork/yellow-original-web.webp', alt: '' },
+  sidebar: {
+    heading: 'Say hello.',
+    text: 'Game dev questions, club enquiries or an idea you can’t stop thinking about: we’d love to hear it.',
+    joinHeading: 'Ready to join?',
+    joinText: 'You can join directly through the Monash Student Association.',
+    joinLabel: 'Join the Club',
+  },
+  form: {
+    heading: 'Send us a message.',
+    introduction:
+      'Tell us what’s on your mind. All fields except the subject are required.',
+    label: 'Contact GCOM',
+    legend: 'Your message to GCOM',
+    nameLabel: 'Your name',
+    emailLabel: 'Email address',
+    emailHelp: 'We’ll use your email to reply to this message.',
+    subjectLabel: 'Subject',
+    optionalLabel: '(optional)',
+    messageLabel: 'Your message',
+    messagePlaceholder: 'Tell us a little about your question or idea…',
+    honeypotLabel: 'Leave this field empty',
+    sendLabel: 'Send message',
+    sendingLabel: 'Sending…',
+    directPrompt: 'Prefer email?',
+    directLabel: 'Email us directly',
+    defaultSubject: 'GCOM enquiry',
+    sending: 'Sending your message…',
+    unavailable:
+      'Message delivery is temporarily unavailable. You can send your message using the email link below.',
+    rateLimited:
+      'Too many messages in a short time. Please try again later, or email us directly.',
+    invalid: 'Please check your name, email, subject and message.',
+    tooLarge: 'Message is too large.',
+    failed:
+      'We couldn’t send your message right now. Your draft is still here. Try again, or use the email link below.',
+    success:
+      'Message sent. Thanks for getting in touch! We’ll reply to the email address you provided.',
+    unreachable:
+      'We couldn’t reach the message service. Your draft is still here. Try again, or use the email link below.',
+  },
+};
+
 export function Contact() {
-  const copy = content.contact;
+  const copy = contactCopy;
   return (
     <>
       <section className="page-intro container">

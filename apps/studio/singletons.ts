@@ -1,8 +1,1 @@
-export const singletonTypes = [
-  'settings',
-  'navigation',
-  'home',
-  'about',
-  'team',
-  'contact',
-] as const;
+export const singletonTypes = ['roster'] as const;

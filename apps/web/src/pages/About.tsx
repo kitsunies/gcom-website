@@ -1,8 +1,36 @@
 import { Fragment } from 'react';
-import { content, asset, href } from '../content';
+import { asset, href } from '../content';
 import { Join } from '../components/Join';
+const aboutCopy = {
+  intro: {
+    eyebrow: 'A PLACE TO PRESS START',
+    title: 'About Us',
+    lead: 'We’re GCOM, the Monash University game development club. We bring people together to explore how games are made and create something of their own.',
+  },
+  sections: [
+    {
+      heading: 'Ideas are better together.',
+      text: 'Our mission is to make game development a shared experience: a place to learn, experiment and find collaborators.',
+    },
+    {
+      heading: 'Bring your curiosity.',
+      text: 'You don’t need a finished game or years of experience to get involved. Whether you’re interested in code, art, music, storytelling or design, there’s something to explore.',
+    },
+  ],
+  action: { label: 'Meet the Team', url: 'team/' },
+  activitiesLabel: 'Club activities',
+  activitiesHeading: 'What we make space for',
+  image: { src: 'artwork/green-original-web.webp', alt: '' },
+  activities: [
+    { name: 'Game jams', text: 'Make something with a team.' },
+    { name: 'Workshops', text: 'Learn tools and try new skills.' },
+    { name: 'Collaboration', text: 'Find people to build with.' },
+    { name: 'Showcases', text: 'Share what you’ve created.' },
+  ],
+};
+
 export function About() {
-  const copy = content.about;
+  const copy = aboutCopy;
   return (
     <>
       <section className="page-intro container">
