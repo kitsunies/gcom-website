@@ -17,7 +17,6 @@ const expectedFooterLinks = [
   ['Instagram', 'https://www.instagram.com/gcom_club/'],
   ['Discord', 'https://discord.com/invite/KmMVxTY2E'],
 ];
-const motionLabels = { play: 'Play animations', pause: 'Pause animations' };
 const contactMessages = {
   success:
     'Message sent. Thanks for getting in touch! We’ll reply to the email address you provided.',
@@ -297,9 +296,11 @@ try {
           ?.content,
       }));
       assert.match(facts.bodyFont, /Aldrich/);
-      assert.match(facts.headingFont, path ? /Nova Square/ : /IBM Plex Mono/);
+      assert.match(facts.headingFont, path ? /Pixelify Sans/ : /IBM Plex Mono/);
       assert.ok(facts.loadedFonts.some((font) => font.includes('Aldrich')));
-      assert.ok(facts.loadedFonts.some((font) => font.includes('Nova Square')));
+      assert.ok(
+        facts.loadedFonts.some((font) => font.includes('Pixelify Sans')),
+      );
       if (!path)
         assert.ok(
           facts.loadedFonts.some((font) => font.includes('IBM Plex Mono')),
@@ -343,31 +344,62 @@ try {
           true,
         );
       }
-      for (const toggle of await page.locator('.motion-toggle').all()) {
-        await toggle.focus();
-        await page.keyboard.press('Enter');
-        assert.equal(await toggle.getAttribute('aria-pressed'), 'true');
-        assert.equal((await toggle.textContent()).trim(), motionLabels.play);
+      assert.equal(await page.locator('.motion-toggle,.eyebrow').count(), 0);
+      if (!path) {
+        assert.match(
+          await page
+            .locator('.quest-heading h3')
+            .first()
+            .evaluate((heading) => getComputedStyle(heading).fontFamily),
+          /Nova Square/,
+        );
+        for (const heading of ['#quests-heading', '#events-heading']) {
+          const type = await page.locator(heading).evaluate((element) => ({
+            family: getComputedStyle(element).fontFamily,
+            weight: getComputedStyle(element).fontWeight,
+          }));
+          assert.match(type.family, /Pixelify Sans/);
+          assert.equal(type.weight, '700');
+        }
+        const scene = page.locator('.mascot-scene');
         assert.equal(
-          await toggle.locator('svg[aria-hidden="true"]').count(),
+          await page
+            .getByRole('button', {
+              name: 'Pause mascot animations',
+              exact: true,
+            })
+            .count(),
+          1,
+        );
+        await scene.focus();
+        await page.keyboard.press('Enter');
+        assert.equal(await scene.getAttribute('aria-pressed'), 'true');
+        assert.equal(
+          await page
+            .getByRole('button', {
+              name: 'Play mascot animations',
+              exact: true,
+            })
+            .count(),
           1,
         );
         assert.equal(
-          await toggle
-            .locator('..')
-            .locator('.mascots')
-            .getAttribute('data-paused'),
-          'true',
+          await page
+            .locator('.mascot.character-hero')
+            .evaluate(
+              (element) => getComputedStyle(element).animationPlayState,
+            ),
+          'paused',
         );
         await page.keyboard.press('Space');
-        assert.equal(await toggle.getAttribute('aria-pressed'), 'false');
-        assert.equal((await toggle.textContent()).trim(), motionLabels.pause);
+        assert.equal(await scene.getAttribute('aria-pressed'), 'false');
         assert.equal(
-          await toggle
-            .locator('..')
-            .locator('.mascots')
-            .getAttribute('data-paused'),
-          'false',
+          await page
+            .locator('.mascot.character-hero')
+            .evaluate(
+              (element) => getComputedStyle(element).animationIterationCount,
+            ),
+          'infinite',
         );
       }
       const axe = await new AxeBuilder({ page })
@@ -460,6 +492,11 @@ try {
         [],
         'Reduced motion disables scene animations',
       );
+      if (!path) {
+        await page.waitForFunction(
+          () => document.querySelector('.mascot-scene')?.disabled,
+        );
+      }
       assert.deepEqual(
         cmsRequests,
         [],

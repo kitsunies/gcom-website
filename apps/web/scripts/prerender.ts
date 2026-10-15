@@ -20,6 +20,7 @@ const paths = pagePaths;
 const assets = await readdir('dist/assets');
 const fonts = [
   'nova-square-latin-400-normal-',
+  'pixelify-sans-latin-700-normal-',
   'aldrich-latin-400-normal-',
   'ibm-plex-mono-latin-700-italic-',
 ]
@@ -57,7 +58,7 @@ await writeFile(
   `User-agent: *\nAllow: /\nSitemap: ${new URL(`${base}sitemap.xml`, origin).href}\n`,
 );
 await mkdir('dist/licenses', { recursive: true });
-for (const font of ['nova-square', 'aldrich', 'ibm-plex-mono'])
+for (const font of ['nova-square', 'pixelify-sans', 'aldrich', 'ibm-plex-mono'])
   await copyFile(
     new URL(
       './LICENSE',

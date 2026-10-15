@@ -11,7 +11,7 @@ export const settings = {
   contactEmail: 'kitsunies@gmail.com',
   calendarUrl: '',
   artwork: {
-    hero: { src: 'artwork/hero-original-web.webp', alt: '' },
+    hero: { src: 'artwork/hero-complete-web.webp', alt: '' },
     purple: { src: 'artwork/purple-original-web.webp', alt: '' },
     green: { src: 'artwork/green-original-web.webp', alt: '' },
     yellow: { src: 'artwork/yellow-original-web.webp', alt: '' },

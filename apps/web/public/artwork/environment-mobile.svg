@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="3800" viewBox="0 0 480 3800" fill="none">
+  <defs>
+    <path id="chevron" d="m0 0 36 36-36 36h24l36-36L24 0Z"/>
+    <path id="diamond" d="m0-28 28 28L0 28-28 0Z"/>
+    <path id="checks" d="M0 0h16v16H0zm32 0h16v16H32zM16 16h16v16H16zM0 32h16v16H0zm32 0h16v16H32z"/>
+  </defs>
+  <g fill="#292929">
+    <path d="m-130 40 85-85 200 200 65-65v230H-10l65-65z"/>
+    <path d="m390 420 160-160 60 60-160 160z"/>
+    <path d="m-80 965 135-135 54 54-135 135z"/>
+    <path d="m385 1580 160-160 55 55-160 160z"/>
+    <path d="m-95 2180 150-150 45 45-150 150z"/>
+    <path d="m360 2800 180-180 62 62-180 180z"/>
+    <path d="m-120 3240 60-60 160 160 60-60v220H-60l60-60z"/>
+    <path d="m320 3650 75-75 170 170v115h-55z"/>
+  </g>
+  <g stroke="#2d2d2d" stroke-width="16">
+    <path d="m370 710 80-80 80 80-80 80z"/>
+    <path d="m440 830 40-40 40 40-40 40z"/>
+    <path d="m-60 1280 72-72 72 72-72 72z"/>
+    <path d="m402 2000 80-80 80 80-80 80z"/>
+    <path d="m-70 2510 95-95 95 95-95 95z"/>
+    <path d="m380 3110 85-85 85 85-85 85z"/>
+    <path d="m450 3230 42-42 42 42-42 42z"/>
+  </g>
+  <g fill="#303030">
+    <use href="#checks" transform="translate(402 72) rotate(10)"/>
+    <use href="#checks" transform="translate(12 620) rotate(-12)"/>
+    <use href="#checks" transform="translate(410 1170) rotate(16) scale(.75)"/>
+    <use href="#checks" transform="translate(10 1790) rotate(-8) scale(.8)"/>
+    <use href="#checks" transform="translate(390 2370) rotate(12)"/>
+    <use href="#checks" transform="translate(15 2960) rotate(-12) scale(.75)"/>
+    <use href="#checks" transform="translate(245 3700) rotate(8)"/>
+  </g>
+  <g fill="#292929">
+    <use href="#chevron" transform="translate(205 120) rotate(-18) scale(.6)"/>
+    <use href="#chevron" transform="translate(280 565) rotate(25) scale(.85)"/>
+    <use href="#chevron" transform="translate(145 970) rotate(-24)"/>
+    <use href="#chevron" transform="translate(360 1415) rotate(20) scale(.7)"/>
+    <use href="#chevron" transform="translate(115 1835) rotate(-18) scale(.85)"/>
+    <use href="#chevron" transform="translate(260 2280) rotate(28)"/>
+    <use href="#chevron" transform="translate(95 2780) rotate(-22) scale(.7)"/>
+    <use href="#chevron" transform="translate(285 3380) rotate(15) scale(.8)"/>
+  </g>
+  <g stroke="#292929" stroke-width="9">
+    <path d="m360-20-100 100h-95l-65 65"/>
+    <path d="m505 1060-90 90h-95l-65 65"/>
+    <path d="m-20 1710 100-100h105l65-65"/>
+    <path d="m490 2920-100-100H285l-65-65"/>
+    <use href="#diamond" transform="translate(70 440) rotate(12)"/>
+    <use href="#diamond" transform="translate(295 870) rotate(-12) scale(.8)"/>
+    <use href="#diamond" transform="translate(145 1515) rotate(16) scale(.8)"/>
+    <use href="#diamond" transform="translate(315 2565) rotate(-8)"/>
+    <use href="#diamond" transform="translate(165 3200) rotate(12) scale(.75)"/>
+  </g>
+  <g fill="#2d2d2d">
+    <use href="#checks" transform="translate(310 320) rotate(-16) scale(.6)"/>
+    <use href="#checks" transform="translate(160 1160) rotate(10) scale(.6)"/>
+    <use href="#checks" transform="translate(350 1710) rotate(-12) scale(.5)"/>
+    <use href="#checks" transform="translate(80 2340) rotate(14) scale(.6)"/>
+    <use href="#checks" transform="translate(260 2980) rotate(-8) scale(.5)"/>
+    <use href="#checks" transform="translate(70 3540) rotate(12) scale(.65)"/>
+  </g>
+</svg>

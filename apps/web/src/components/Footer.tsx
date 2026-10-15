@@ -18,8 +18,8 @@ export function Footer() {
           <img
             src={asset(settings.logo)}
             alt={settings.logo.alt}
-            width="48"
-            height="48"
+            width="36"
+            height="36"
           />
           <span>
             {settings.brand.before}
