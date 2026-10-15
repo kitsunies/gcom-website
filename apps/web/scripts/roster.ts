@@ -13,7 +13,7 @@ import { assertSanityPortraits, validateRoster } from './validate-content';
 export const rosterSnapshotFile = 'src/generated/roster.json';
 export const rosterSourceFile = 'src/generated/roster-source.json';
 const apiVersion = '2026-10-01';
-export const rosterQuery = `*[_id == "roster" && _type == "roster"][0]{"members": members[]{"id": coalesce(id, _key), name, role, ...select(defined(photo)=>{"photo":{"src": photo.asset->url, "alt": coalesce(photo.alt, "")}}), "links": coalesce(links[]{label, url}, [])}}`;
+export const rosterQuery = `*[_id == "roster" && _type == "roster"][0]{"members": members[]{_key, name, role, ...select(defined(photo)=>{"photo":{"src": photo.asset->url, "alt": coalesce(photo.alt, "")}}), "links": coalesce(links[]{label, url}, [])}}`;
 
 export async function writeSnapshot(
   value: unknown,

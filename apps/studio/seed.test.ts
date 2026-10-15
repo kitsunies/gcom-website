@@ -6,7 +6,7 @@ function mock(existing: string[] = []) {
   const docs = new Map(
     existing.map((id) => [
       id,
-      { _id: id, _type: 'roster', members: [{ id: 'existing' }] },
+      { _id: id, _type: 'roster', members: [{ _key: 'existing' }] },
     ]),
   );
   const creates: Record<string, unknown>[] = [];

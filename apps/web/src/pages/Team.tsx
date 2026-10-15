@@ -44,7 +44,7 @@ export function Team() {
         {members.length ? (
           <div className="team-grid">
             {members.map((member) => (
-              <article className="team-card" key={member.id}>
+              <article className="team-card" key={member._key}>
                 {member.photo ? (
                   <img
                     className="profile-photo"

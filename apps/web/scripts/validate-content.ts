@@ -95,15 +95,15 @@ export function validateRoster(value: unknown) {
     Array.isArray(snapshot.members) && snapshot.members.length <= 100,
     'Invalid roster',
   );
-  const ids = new Set<string>();
+  const memberKeys = new Set<string>();
   for (const value of snapshot.members) {
     const member = record(value);
-    keys(member, ['id', 'name', 'role', 'photo', 'links']);
-    text(member.id);
+    keys(member, ['_key', 'name', 'role', 'photo', 'links']);
+    text(member._key);
     text(member.name, 120);
     text(member.role, 120);
-    assert(!ids.has(member.id as string), 'Duplicate profile ID');
-    ids.add(member.id as string);
+    assert(!memberKeys.has(member._key as string), 'Duplicate member key');
+    memberKeys.add(member._key as string);
     if (member.photo !== undefined) {
       const photo = record(member.photo);
       keys(photo, ['src', 'alt']);

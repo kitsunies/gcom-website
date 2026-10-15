@@ -1,7 +1,7 @@
 {
   "members": [
     {
-      "id": "fictional-ada",
+      "_key": "fictional-ada",
       "name": "Ada Example",
       "role": "Fictional President",
       "photo": {
@@ -11,7 +11,7 @@
       "links": [{ "label": "Portfolio", "url": "https://ada.example.test" }]
     },
     {
-      "id": "fictional-lin",
+      "_key": "fictional-lin",
       "name": "Lin Sample",
       "role": "Fictional Treasurer",
       "links": []
