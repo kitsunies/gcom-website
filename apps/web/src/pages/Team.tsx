@@ -5,7 +5,6 @@ import type { TeamMember } from '../site-content';
 import { Join } from '../components/Join';
 const copy = {
   intro: {
-    eyebrow: 'THE PEOPLE BEHIND THE PLAY',
     title: 'Meet the Team',
     lead: 'Meet the committee bringing GCOM’s activities and community together.',
   },
@@ -38,7 +37,6 @@ export function Team() {
   return (
     <>
       <section className="page-intro container">
-        <span className="eyebrow pixel">{copy.intro.eyebrow}</span>
         <h1>{copy.intro.title}</h1>
         <p className="lead">{copy.intro.lead}</p>
       </section>

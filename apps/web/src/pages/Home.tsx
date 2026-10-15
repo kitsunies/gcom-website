@@ -9,8 +9,6 @@ export const splitGraphemes = (text: string) =>
   Array.from(characters.segment(text), ({ segment }) => segment);
 const homeCopy = {
   hero: {
-    university: 'GAME CREATORS OF',
-    club: 'MONASH',
     heading: ['BUILD IT', 'YOUR WAY'],
     description:
       "Explore Game Development and Game Design with GCOM. Let's create cool experiences together!",
@@ -18,7 +16,6 @@ const homeCopy = {
     explore: { label: 'Explore Game Jams', url: '#quests' },
   },
   divider: ['CREATE', 'COLLABORATE', 'PLAY', 'REPEAT'],
-  questsEyebrow: 'PICK YOUR ADVENTURE',
   questsHeading: 'Your Next Quest',
   quests: [
     {
@@ -73,10 +70,6 @@ export function Home() {
         aria-labelledby="hero-heading"
       >
         <div className="hero-copy">
-          <p className="eyebrow pixel">
-            <span aria-hidden="true">✣</span> {copy.hero.university}{' '}
-            <span className="yellow-text">{copy.hero.club}</span>
-          </p>
           <h1 id="hero-heading" aria-label={copy.hero.heading.join(' ')}>
             {copy.hero.heading.map((line, index) => (
               <span className="hero-word" aria-hidden="true" key={index}>
@@ -131,7 +124,6 @@ export function Home() {
         ref={questsSection}
         aria-labelledby="quests-heading"
       >
-        <span className="eyebrow pixel">{copy.questsEyebrow}</span>
         <h2 id="quests-heading">
           <span className="heading-spark" aria-hidden="true">
             ✣

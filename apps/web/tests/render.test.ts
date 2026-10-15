@@ -16,6 +16,7 @@ test('all routes render source-owned copy, links and metadata', () => {
     const rendered = renderToString(createElement(App, { page }));
     const head = pageHtml(page, new URL('https://example.test'), '/repo/');
     assert.match(rendered, /Skip to content/);
+    assert.doesNotMatch(rendered, /\beyebrow\b/);
     assert.match(rendered, /Monash University Game Development Club/);
     assert.match(
       head,
