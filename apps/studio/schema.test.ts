@@ -17,10 +17,9 @@ const roster = (members: unknown[]) => ({
   _createdAt: '2026-10-01T00:00:00Z',
   _updatedAt: '2026-10-01T00:00:00Z',
 });
-const member = (id = 'ada', name = 'Ada') => ({
-  _key: id,
+const member = (key = 'ada', name = 'Ada') => ({
+  _key: key,
   _type: 'member',
-  id,
   name,
   role: 'President',
   links: [
@@ -59,7 +58,7 @@ test('Studio schema exposes only the roster document and its member/link/image t
   );
   assert.deepEqual(
     registry.get('member')!.fields!.map((field) => field.name),
-    ['id', 'name', 'role', 'photo', 'links'],
+    ['name', 'role', 'photo', 'links'],
   );
 });
 
@@ -93,13 +92,18 @@ test('Studio HTTPS validation matches the public snapshot validator', () => {
     assert.equal(validHttps(value), safeHttps(value), String(value));
 });
 
-test('roster validates unique IDs and member/link field limits and controls', async () => {
+test('roster validates unique Sanity keys and member/link field limits and controls', async () => {
   assert.equal((await validate(roster([member()]))).status, 'passed');
+  assert.equal(
+    (await validate(roster([{ ...member(), id: 'legacy-id' }]))).markers.filter(
+      (marker) => marker.level === 'error',
+    ).length,
+    0,
+  );
   for (const members of [
     [member(), member()],
-    [member('id', 'A'.repeat(121))],
+    [member('key', 'A'.repeat(121))],
     [{ ...member(), role: 'R'.repeat(121) }],
-    [member('I'.repeat(201))],
     [{ ...member(), links: [{ ...member().links[0], label: 'L'.repeat(61) }] }],
     [
       {

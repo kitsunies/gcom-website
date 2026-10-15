@@ -81,13 +81,13 @@ test('team renders mutable roster names, links, portraits and order', () => {
   try {
     (roster as { members: TeamMember[] }).members = [
       {
-        id: 'second',
+        _key: 'second',
         name: 'Second Person',
         role: 'Designer',
         links: [{ label: 'Portfolio', url: 'https://example.test/second' }],
       },
       {
-        id: 'first',
+        _key: 'first',
         name: 'First Person',
         role: 'Developer',
         photo: {
@@ -115,7 +115,7 @@ test('team social links use recognizable icons with accessible names and exact U
   try {
     (roster as { members: TeamMember[] }).members = [
       {
-        id: 'social',
+        _key: 'social',
         name: 'Social Person',
         role: 'Developer',
         links: [

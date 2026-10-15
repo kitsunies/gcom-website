@@ -40,7 +40,9 @@ test('public whitelist rejects private and unknown fields, unsafe URLs and inval
   for (const mutate of [
     (value: any) => (value.token = 'secret'),
     (value: any) => (value.members[0].email = 'private@example.test'),
-    (value: any) => (value.members[0].id = ''),
+    (value: any) => (value.members[0]._key = ''),
+    (value: any) => delete value.members[0]._key,
+    (value: any) => (value.members[0].id = 'legacy-id'),
     (value: any) => (value.members[0].links[0].url = 'javascript:alert(1)'),
     (value: any) =>
       (value.members[0].links[0].url = 'https://user:pass@example.test'),
@@ -67,7 +69,7 @@ test('public whitelist rejects private and unknown fields, unsafe URLs and inval
   assert.throws(() => validateRoster({ members: [], private: true }));
 });
 
-test('published query excludes drafts and validates a published empty roster', async () => {
+test('published query uses Sanity keys, ignores legacy IDs and excludes drafts', async () => {
   const { parse, evaluate } = await import('groq-js');
   const expression = parse(rosterQuery);
   assert(!rosterQuery.includes('drafts.'));
@@ -98,7 +100,7 @@ test('published query excludes drafts and validates a published empty roster', a
             {
               _key: 'portrait-free-key',
               _type: 'member',
-              id: 'portrait-free',
+              id: 'legacy-id',
               name: 'Lin Sample',
               role: 'Treasurer',
               private: 'hidden',
@@ -122,7 +124,7 @@ test('published query excludes drafts and validates a published empty roster', a
   assert.deepEqual(projected, {
     members: [
       {
-        id: 'legacy-member-key',
+        _key: 'legacy-member-key',
         name: 'Ada Example',
         role: 'President',
         photo: {
@@ -132,7 +134,7 @@ test('published query excludes drafts and validates a published empty roster', a
         links: [{ label: 'Site', url: 'https://example.test' }],
       },
       {
-        id: 'portrait-free',
+        _key: 'portrait-free-key',
         name: 'Lin Sample',
         role: 'Treasurer',
         links: [],

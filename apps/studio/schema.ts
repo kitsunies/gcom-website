@@ -97,7 +97,6 @@ const member = defineType({
   title: 'Member',
   type: 'object',
   fields: [
-    fieldText('id', 200),
     fieldText('name', 120),
     fieldText('role', 120),
     defineField({
@@ -129,11 +128,11 @@ const roster = defineType({
           .required()
           .max(100)
           .custom((value) => {
-            const members = value as { id?: string }[] | undefined;
+            const members = value as { _key?: string }[] | undefined;
             return !members ||
-              new Set(members.map((item) => item.id)).size === members.length
+              new Set(members.map((item) => item._key)).size === members.length
               ? true
-              : 'Member IDs must be unique.';
+              : 'Member keys must be unique.';
           }),
     }),
   ],

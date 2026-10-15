@@ -165,7 +165,7 @@ test('failed fetch or parse preserves the last valid snapshot byte for byte', as
 });
 test('public roster rejects private fields, unsafe links, duplicate identities and traversal', () => {
   const member = {
-    id: 'abc',
+    _key: 'abc',
     name: 'Person',
     role: 'Role',
     photo: {
