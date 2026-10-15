@@ -12,7 +12,7 @@
     "preview": "vite preview --host 0.0.0.0",
     "build:snapshot": "tsx scripts/roster.ts --check && tsc --noEmit && tsx scripts/html.ts && vite build && vite build --ssr src/prerender.tsx --outDir .build && tsx scripts/prerender.ts",
     "build:release": "ROSTER_SOURCE=sanity npm run build",
-    "test:browser": "node scripts/browser-check.mjs",
+    "test:browser": "tsx scripts/browser-check.mjs",
     "test:snapshot": "tsx --test tests/*.test.ts",
     "sync:roster": "tsx scripts/roster.ts"
   },
