@@ -1,7 +1,6 @@
 import { Icon } from './Icon';
 import { membership } from '../content';
 const invitation = {
-  eyebrow: 'CREATIVITY AWAITS',
   heading: 'Build connections.',
   highlight: ' Build Games.',
   text: 'It takes less than a minute to join GCOM.',
@@ -11,7 +10,6 @@ export function Join() {
   const copy = invitation;
   return (
     <section className="join-section container" aria-labelledby="join-heading">
-      <span className="pixel eyebrow">{copy.eyebrow}</span>
       <h2 id="join-heading">
         {copy.heading}
         <span>{copy.highlight}</span>

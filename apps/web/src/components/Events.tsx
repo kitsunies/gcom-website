@@ -4,7 +4,6 @@ import { href, settings, type EventSummary } from '../content';
 import snapshot from '../../public/data/events.json';
 import { eventDate, isCurrentEvent } from '../event-date';
 const copy = {
-  eyebrow: 'SAVE YOUR SPOT',
   heading: 'Events & Announcements',
   calendarLabel: 'Open the Luma calendar',
   eventLabel: 'View on Luma',
@@ -35,7 +34,6 @@ export function Events() {
     >
       <div className="section-top">
         <div>
-          <span className="eyebrow pixel">{copy.eyebrow}</span>
           <h2 id="events-heading">{copy.heading}</h2>
         </div>
         {calendar ? (

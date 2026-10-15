@@ -294,12 +294,6 @@ p {
   width: 24px;
   height: 24px;
 }
-.eyebrow {
-  font-size: 16px;
-  letter-spacing: 1px;
-  color: var(--lavender);
-  display: block;
-}
 .hero {
   min-height: max(680px, calc(92svh - 88px));
   display: grid;
@@ -315,7 +309,7 @@ p {
 .hero h1 {
   font: italic 700 min(var(--hero-size), 12cqi)/1.15 var(--hero);
   letter-spacing: 0.025em;
-  margin-top: var(--s6);
+  margin-top: 0;
   padding-block: var(--s4);
   text-shadow: var(--shadow-display);
 }
@@ -502,10 +496,10 @@ p {
   margin-inline: var(--s6);
 }
 .quests-section {
-  padding-block: var(--s24);
+  padding-block: var(--s16) var(--s24);
 }
 .quests-section h2 {
-  margin-top: var(--s3);
+  margin-top: 0;
   margin-bottom: var(--s8);
 }
 .heading-spark {
@@ -618,7 +612,7 @@ p {
   margin-bottom: var(--s8);
 }
 .section-top h2 {
-  margin-top: var(--s3);
+  margin-top: 0;
 }
 .empty-state {
   display: flex;
@@ -684,11 +678,11 @@ p {
 }
 .join-section {
   border-top: 2px solid #514958;
-  padding-block: var(--s16) var(--s24);
+  padding-block: var(--s8) var(--s24);
   text-align: center;
 }
 .join-section h2 {
-  margin-top: var(--s4);
+  margin-top: 0;
 }
 .join-section h2 span {
   color: var(--lavender);
@@ -732,10 +726,10 @@ p {
   gap: var(--s2);
 }
 .page-intro {
-  padding-block: var(--s24) var(--s12);
+  padding-block: var(--s16) var(--s12);
 }
 .page-intro h1 {
-  margin-top: var(--s4);
+  margin-top: 0;
   color: var(--lavender);
   text-shadow: var(--shadow-display);
 }
@@ -1369,11 +1363,6 @@ p {
   }
   .hero h1 {
     letter-spacing: -1px;
-    margin-top: var(--s6);
-  }
-  .hero .eyebrow {
-    font-size: 12px;
-    letter-spacing: 0;
   }
   .hero-description {
     margin-top: var(--s6);
@@ -1431,10 +1420,7 @@ p {
     margin-inline: var(--s2);
   }
   .quests-section {
-    padding-block: var(--s16);
-  }
-  .quests-section .eyebrow {
-    font-size: 12px;
+    padding-block: var(--s8) var(--s16);
   }
   .quest-card {
     padding: var(--s8);
@@ -1462,7 +1448,7 @@ p {
     gap: var(--s6);
   }
   .join-section {
-    padding-block: var(--s12) var(--s16);
+    padding-block: var(--s6) var(--s16);
   }
   .join-section h2 span {
     display: block;
@@ -1473,7 +1459,7 @@ p {
     align-items: start;
   }
   .page-intro {
-    padding-block: var(--s16) var(--s8);
+    padding-block: var(--s8);
   }
   .lead {
     font-size: var(--body-size);

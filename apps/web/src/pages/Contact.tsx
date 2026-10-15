@@ -3,7 +3,6 @@ import { asset, membership } from '../content';
 import { ContactForm } from '../ContactForm';
 const contactCopy = {
   intro: {
-    eyebrow: 'LET’S CONNECT',
     title: 'Contact',
     lead: 'Have a question, an idea for a collaboration or something you’d like to share with the club?',
   },
@@ -55,7 +54,6 @@ export function Contact() {
   return (
     <>
       <section className="page-intro container">
-        <span className="eyebrow pixel">{copy.intro.eyebrow}</span>
         <h1>{copy.intro.title}</h1>
         <p className="lead">{copy.intro.lead}</p>
       </section>

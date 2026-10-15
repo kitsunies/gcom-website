@@ -3,7 +3,6 @@ import { asset, href } from '../content';
 import { Join } from '../components/Join';
 const aboutCopy = {
   intro: {
-    eyebrow: 'A PLACE TO PRESS START',
     title: 'About Us',
     lead: 'We’re GCOM, the Monash University game development club. We bring people together to explore how games are made and create something of their own.',
   },
@@ -34,7 +33,6 @@ export function About() {
   return (
     <>
       <section className="page-intro container">
-        <span className="eyebrow pixel">{copy.intro.eyebrow}</span>
         <h1>{copy.intro.title}</h1>
         <p className="lead">{copy.intro.lead}</p>
       </section>
