@@ -109,6 +109,49 @@ test('team renders mutable roster names, links, portraits and order', () => {
   }
 });
 
+test('team social links use recognizable icons with accessible names and exact URLs', () => {
+  const original = structuredClone(roster.members);
+  try {
+    (roster as { members: TeamMember[] }).members = [
+      {
+        id: 'social',
+        name: 'Social Person',
+        role: 'Developer',
+        links: [
+          { label: 'LinkedIn', url: 'https://www.linkedin.com/in/person' },
+          { label: 'GitHub', url: 'https://github.com/person' },
+          { label: 'Instagram', url: 'https://instagram.com/person' },
+          { label: 'GitHub', url: 'https://github.com.example.test/person' },
+          { label: 'Custom', url: 'https://constructor/person' },
+        ],
+      },
+    ];
+    const html = renderToString(createElement(App, { page: 'team' }));
+    for (const [platform, url] of [
+      ['LinkedIn', 'https://www.linkedin.com/in/person'],
+      ['GitHub', 'https://github.com/person'],
+      ['Instagram', 'https://instagram.com/person'],
+    ]) {
+      assert(
+        html.includes(
+          `<a class="team-social-link" href="${url}" aria-label="Social Person on ${platform}" title="Social Person on ${platform}"><svg`,
+        ),
+      );
+    }
+    assert(
+      html.includes(
+        '<a href="https://github.com.example.test/person">GitHub<!-- --> <svg',
+      ),
+    );
+    assert(
+      html.includes('<a href="https://constructor/person">Custom<!-- --> <svg'),
+    );
+    assert.equal((html.match(/class="team-social-link"/g) || []).length, 3);
+  } finally {
+    (roster as { members: TeamMember[] }).members = original;
+  }
+});
+
 test('calendar source setting controls the event link', () => {
   const original = settings.calendarUrl;
   try {

@@ -827,6 +827,9 @@ p {
   margin-top: var(--s2);
 }
 .team-card ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s1);
   list-style: none;
   padding: 0;
 }
@@ -835,6 +838,10 @@ p {
   align-items: center;
   min-height: 44px;
   text-decoration: underline;
+}
+.team-card li a.team-social-link {
+  justify-content: center;
+  width: 44px;
 }
 .contact-section {
   padding-bottom: var(--s24);
