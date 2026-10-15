@@ -33,7 +33,7 @@ const text = (value: unknown, max = 200) =>
       !/[\u0000-\u001f\u007f-\u009f]/.test(value),
     'Invalid public text',
   );
-const sanityPortrait = (value: unknown) =>
+export const isSanityPortrait = (value: unknown) =>
   safeHttps(value) &&
   new URL(value).hostname === 'cdn.sanity.io' &&
   /^\/images\/[a-z0-9]+\/[a-z0-9_-]+\/[a-zA-Z0-9_-]+\.(png|webp|jpe?g)$/.test(
@@ -108,7 +108,7 @@ export function validateRoster(value: unknown) {
       const photo = record(member.photo);
       keys(photo, ['src', 'alt']);
       assert(
-        localPortrait(photo.src) || sanityPortrait(photo.src),
+        localPortrait(photo.src) || isSanityPortrait(photo.src),
         'Invalid portrait path or URL',
       );
       assert(
@@ -135,7 +135,7 @@ export function assertSanityPortraits(value: unknown) {
     .members)
     if (member.photo)
       assert(
-        sanityPortrait(member.photo.src),
+        isSanityPortrait(member.photo.src),
         'Sanity portraits must use a published Sanity CDN URL',
       );
 }

@@ -6,6 +6,7 @@ import { extname, resolve, sep } from 'node:path';
 import { chromium } from 'playwright';
 import AxeBuilder from '@axe-core/playwright';
 import { build, loadEnv } from 'vite';
+import { isSanityPortrait } from './validate-content.ts';
 
 const env = { ...loadEnv('production', process.cwd(), ''), ...process.env };
 const base = env.SITE_BASE || '/';
@@ -72,11 +73,29 @@ async function serve(directory, mountBase = base) {
 
 const evidence = env.BROWSER_EVIDENCE_DIR;
 if (evidence) await mkdir(evidence, { recursive: true });
+const roster = JSON.parse(await readFile('src/generated/roster.json', 'utf8'));
+const expectedPortraits = new Set(
+  roster.members.flatMap((member) => (member.photo ? [member.photo.src] : [])),
+);
 const isSanityHost = (host) =>
   host === 'sanity.io' ||
   host.endsWith('.sanity.io') ||
   host === 'sanity-cdn.com' ||
   host.endsWith('.sanity-cdn.com');
+const isExpectedPortrait = (url, portraits) =>
+  isSanityPortrait(url.href) && portraits.has(url.href);
+const guardSanityRequests = (portraits, blocked) => async (route) => {
+  const url = new URL(route.request().url());
+  if (!isSanityHost(url.hostname)) return route.fallback();
+  if (
+    route.request().method() === 'GET' &&
+    route.request().resourceType() === 'image' &&
+    isExpectedPortrait(url, portraits)
+  )
+    return route.fallback();
+  blocked.push(url.href);
+  return route.abort();
+};
 const isSanityProjectHost = (host) =>
   host === 'cdn.sanity.io' ||
   host.endsWith('.cdn.sanity.io') ||
@@ -87,6 +106,62 @@ let browser;
 const temporary = [];
 try {
   browser = await chromium.launch({ headless: true });
+  const portrait =
+    'https://cdn.sanity.io/images/test1234/production/synthetic.png';
+  const malformedPortrait =
+    'https://cdn.sanity.io/images/test1234/production/malformed.svg';
+  const guardContext = await browser.newContext();
+  await guardContext.route(portrait, (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: 'image/png',
+      body: Buffer.from(
+        'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/9iUAAAAASUVORK5CYII=',
+        'base64',
+      ),
+    }),
+  );
+  const guardPage = await guardContext.newPage();
+  const guardBlocked = [];
+  await guardPage.route(
+    '**/*',
+    guardSanityRequests(new Set([portrait, malformedPortrait]), guardBlocked),
+  );
+  const rejectedSanityUrls = [
+    'https://test1234.api.sanity.io/v2026-10-01/data/query/production?query=*',
+    'https://test1234.api.sanity.io/v2026-10-01/data/doc/production/roster',
+    'https://cdn.sanity.io/images/test1234/production/unexpected.png',
+    malformedPortrait,
+  ];
+  await guardPage.setContent(
+    [portrait, ...rejectedSanityUrls]
+      .map((src) => `<img src="${src}">`)
+      .join(''),
+  );
+  await guardPage
+    .locator('img')
+    .first()
+    .evaluate((image) => image.decode());
+  await Promise.allSettled(
+    (await guardPage.locator('img').all()).map((image) =>
+      image.evaluate((element) => element.decode()),
+    ),
+  );
+  await guardPage.evaluate(async (url) => {
+    await Promise.all([
+      fetch(url).catch(() => {}),
+      fetch(url, { method: 'POST' }).catch(() => {}),
+    ]);
+  }, portrait);
+  assert.deepEqual(
+    [...guardBlocked].sort(),
+    [...rejectedSanityUrls, portrait, portrait].sort(),
+  );
+  await guardPage.close();
+  await guardContext.close();
+  console.log(
+    'Sanity request guard: expected portrait decodes; API and unexpected CDN requests are blocked',
+  );
   const studio = await serve('../studio/dist', '/');
   const studioPage = await browser.newPage();
   try {
@@ -169,12 +244,10 @@ try {
       const page = await context.newPage();
       const errors = [];
       const cmsRequests = [];
-      await page.route('**/*', async (route) => {
-        const url = new URL(route.request().url());
-        if (!isSanityHost(url.hostname)) return route.continue();
-        cmsRequests.push(url.href);
-        return route.abort();
-      });
+      await page.route(
+        '**/*',
+        guardSanityRequests(expectedPortraits, cmsRequests),
+      );
       page.on('pageerror', (error) => errors.push(error.message));
       page.on('console', (message) => {
         if (
