@@ -1,40 +1,46 @@
 import { Icon } from './Icon';
-import { content, asset, local, membership } from '../content';
+import { settings, asset, local, membership } from '../content';
+const footer = {
+  tagline: 'Make games. Make friends.',
+  description: 'Monash University Game Development Club',
+  joinLabel: 'Join the Club',
+  instagram: {
+    label: 'Instagram',
+    url: 'https://www.instagram.com/gcom_club/',
+  },
+  discord: { label: 'Discord', url: 'https://discord.com/invite/KmMVxTY2E' },
+};
 export function Footer() {
   return (
     <footer className="footer">
       <div className="container footer-inner">
         <a className="brand" href={local()}>
           <img
-            src={asset(content.settings.logo)}
-            alt={content.settings.logo.alt}
+            src={asset(settings.logo)}
+            alt={settings.logo.alt}
             width="48"
             height="48"
           />
           <span>
-            {content.settings.brand.before}
-            <span className="yellow-text">
-              {content.settings.brand.highlight}
-            </span>
-            {content.settings.brand.after}
+            {settings.brand.before}
+            <span className="yellow-text">{settings.brand.highlight}</span>
+            {settings.brand.after}
           </span>
         </a>
         <p>
-          {content.navigation.footer.tagline}
+          {footer.tagline}
           <br />
-          <span>{content.navigation.footer.description}</span>
+          <span>{footer.description}</span>
         </p>
         <div className="footer-links">
           <a href={membership}>
-            {content.navigation.footer.joinLabel} <Icon name="arrow-up-right" />
+            {footer.joinLabel} <Icon name="arrow-up-right" />
           </a>
-          <a href={content.navigation.footer.instagram.url}>
-            {content.navigation.footer.instagram.label}{' '}
-            <Icon name="arrow-up-right" />
+          <a href={footer.instagram.url}>
+            {footer.instagram.label} <Icon name="arrow-up-right" />
           </a>
-          <a href={content.navigation.footer.discord.url}>
-            {content.navigation.footer.discord.label}{' '}
-            <Icon name="arrow-up-right" />
+          <a href={footer.discord.url}>
+            {footer.discord.label} <Icon name="arrow-up-right" />
           </a>
         </div>
       </div>

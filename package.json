@@ -13,18 +13,20 @@
     "build:snapshot": "npm run build:snapshot --workspace @gcom/web",
     "build:release": "npm run build:release --workspace @gcom/web",
     "preview": "npm run preview --workspace @gcom/web",
-    "sync:content": "npm run sync:content --workspace @gcom/web",
     "sync:events": "npm run sync:events --workspace @gcom/web",
     "test:browser": "npm run test:browser --workspace @gcom/web",
-    "test": "npm run test --workspaces",
-    "seed:content": "npm run seed --workspace @gcom/studio",
+    "test": "npm run sync:roster && npm run test:snapshot",
     "dev:studio": "npm run dev --workspace @gcom/studio",
     "build:studio": "npm run build --workspace @gcom/studio",
     "dev:contact": "npm run dev --workspace @gcom/contact",
     "build:contact": "npm run build --workspace @gcom/contact",
     "deploy:contact": "npm run deploy --workspace @gcom/contact",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "sync:roster": "npm run sync:roster --workspace @gcom/web",
+    "test:snapshot": "npm run test:snapshot --workspace @gcom/web && npm run test --workspace @gcom/studio && npm run test --workspace @gcom/contact",
+    "seed:roster": "npm run seed --workspace @gcom/studio",
+    "migrate:roster": "npm run migrate:roster --workspace @gcom/studio"
   },
   "devDependencies": {
     "prettier": "3.9.10"

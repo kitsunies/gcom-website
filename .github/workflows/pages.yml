@@ -26,9 +26,9 @@ jobs:
     outputs:
       dataset: ${{ steps.dataset.outputs.name }}
     env:
-      CONTENT_SOURCE: sanity
-      SANITY_PROJECT_ID: ${{ vars.SANITY_PROJECT_ID }}
-      SANITY_DATASET: ${{ inputs.dataset || vars.SANITY_DATASET || 'production' }}
+      ROSTER_SOURCE: ${{ github.event_name == 'pull_request' && 'fixture' || 'sanity' }}
+      SANITY_PROJECT_ID: ${{ github.event_name == 'pull_request' && 'dummy1234' || vars.SANITY_PROJECT_ID }}
+      SANITY_DATASET: ${{ github.event_name == 'pull_request' && 'test' || inputs.dataset || vars.SANITY_DATASET || 'production' }}
       SITE_ORIGIN: ${{ vars.SITE_ORIGIN || 'https://gcom.techtom.tech' }}
       SITE_BASE: ${{ vars.SITE_BASE || '/' }}
       VITE_CONTACT_ENDPOINT: ${{ vars.CONTACT_ENDPOINT }}
@@ -43,12 +43,19 @@ jobs:
         name: Record selected dataset
         run: echo "name=$SANITY_DATASET" >> "$GITHUB_OUTPUT"
       - run: npm ci
-      - name: Fetch and validate published CMS content once
+      - name: Block CMS requests in pull-request checks
+        if: github.event_name == 'pull_request'
+        run: echo '127.0.0.1 dummy1234.api.sanity.io dummy1234.apicdn.sanity.io wtzkb2rs.api.sanity.io wtzkb2rs.apicdn.sanity.io cdn.sanity.io' | sudo tee -a /etc/hosts
+      - name: Generate synthetic roster for pull requests
+        if: github.event_name == 'pull_request'
+        run: npm run sync:roster
+      - name: Fetch and validate the published roster once
+        if: github.event_name != 'pull_request'
         env:
           SANITY_READ_TOKEN: ${{ secrets.SANITY_READ_TOKEN }}
-        run: npm run sync:content
+        run: npm run sync:roster
       - run: npm run format:check
-      - run: npm test
+      - run: npm run test:snapshot
       - name: Typecheck Studio
         working-directory: apps/studio
         env:
@@ -62,11 +69,13 @@ jobs:
           SANITY_STUDIO_DATASET: ${{ env.SANITY_DATASET }}
         run: npm run build
       - uses: actions/cache@v4
+        if: github.event_name != 'pull_request'
         with:
           path: apps/web/public/data/events.json
           key: gcom-calendar-v1-${{ github.run_id }}-${{ github.run_attempt }}
           restore-keys: gcom-calendar-v1-
-      - name: Import published club events using the CMS calendar destination
+      - name: Import published club events using the source-owned calendar destination
+        if: github.event_name != 'pull_request'
         id: calendar
         continue-on-error: true
         env:
@@ -78,7 +87,7 @@ jobs:
       - name: Require a previous snapshot on sync failure
         if: steps.calendar.outcome == 'failure'
         run: node -e 'if (!require("./apps/web/public/data/events.json").updatedAt) throw new Error("No previous calendar snapshot is available. Preserve the existing release.")'
-      - name: Build the validated snapshot without fetching CMS again
+      - name: Build the validated roster snapshot without fetching CMS again
         run: npm run build:snapshot
       - run: npx playwright install --with-deps chromium
       - run: npm run test:browser
@@ -86,6 +95,7 @@ jobs:
         if: env.SITE_BASE == '/'
         run: node -e 'require("node:fs").writeFileSync("apps/web/dist/CNAME", new URL(process.env.SITE_ORIGIN).hostname + "\n")'
       - uses: actions/upload-pages-artifact@v3
+        if: github.event_name != 'pull_request'
         with:
           path: apps/web/dist
   deploy:

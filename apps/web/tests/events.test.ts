@@ -168,18 +168,17 @@ test('public roster rejects private fields, unsafe links, duplicate identities a
     id: 'abc',
     name: 'Person',
     role: 'Role',
-    photo: 'team/revision/photo.webp',
+    photo: {
+      src: 'https://cdn.sanity.io/images/abc/staging/photo.webp',
+      alt: 'Portrait',
+    },
     links: [{ label: 'Website', url: 'https://example.test' }],
   };
-  const roster = (members: unknown[]) => ({
-    revision: 'revision',
-    publishedAt: '2026-10-01T00:00:00Z',
-    members,
-  });
+  const roster = (members: unknown[]) => ({ members });
   validateRoster(roster([member]));
   for (const invalid of [
     { ...member, email: 'private@example.test' },
-    { ...member, photo: '../../secret.png' },
+    { ...member, photo: { src: 'https://evil.test/secret.png', alt: '' } },
     { ...member, links: [{ label: 'Link', url: 'javascript:alert(1)' }] },
   ])
     assert.throws(() => validateRoster(roster([invalid])));

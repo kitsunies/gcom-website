@@ -1,9 +1,24 @@
 import { Icon } from '../components/Icon';
-import { content, asset, href } from '../content';
+import { asset } from '../content';
+import roster from '../generated/roster.json';
+import type { TeamMember } from '../site-content';
 import { Join } from '../components/Join';
+const copy = {
+  intro: {
+    eyebrow: 'THE PEOPLE BEHIND THE PLAY',
+    title: 'Meet the Team',
+    lead: 'Meet the committee bringing GCOM’s activities and community together.',
+  },
+  label: 'Current committee',
+  linksLabel: 'public links',
+  emptyHeading: 'The team roster is on its way.',
+  emptyText:
+    'Committee profiles will appear here once the roster has been approved and published.',
+  image: { src: 'artwork/purple-original-web.webp', alt: '' },
+};
+
 export function Team() {
-  const copy = content.team;
-  const { members } = copy;
+  const members = (roster as { members: TeamMember[] }).members;
   return (
     <>
       <section className="page-intro container">

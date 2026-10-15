@@ -1,12 +1,52 @@
 import { useEffect, useRef, Fragment, type CSSProperties } from 'react';
-import { content, asset, href, membership, art, composition } from '../content';
+import { asset, href, membership, art, composition } from '../content';
 import { Join } from '../components/Join';
 import { Mascots } from '../components/Mascots';
 import { Events } from '../components/Events';
 
 const characters = new Intl.Segmenter(undefined, { granularity: 'grapheme' });
+export const splitGraphemes = (text: string) =>
+  Array.from(characters.segment(text), ({ segment }) => segment);
+const homeCopy = {
+  hero: {
+    university: 'GAME CREATORS OF',
+    club: 'MONASH',
+    heading: ['BUILD IT', 'YOUR WAY'],
+    description:
+      "Explore Game Development and Game Design with GCOM. Let's create cool experiences together!",
+    joinLabel: 'Join GCOM',
+    explore: { label: 'Explore Game Jams', url: '#quests' },
+  },
+  divider: ['CREATE', 'COLLABORATE', 'PLAY', 'REPEAT'],
+  questsEyebrow: 'PICK YOUR ADVENTURE',
+  questsHeading: 'Your Next Quest',
+  quests: [
+    {
+      name: 'Game Jams',
+      theme: 'purple',
+      label: 'NETHERITE FORMS UNDER PRESSURE',
+      text: 'Build a game in a short time with a team!',
+      action: { label: 'Find a game jam', url: '#events' },
+    },
+    {
+      name: 'Workshops',
+      theme: 'green',
+      label: "LET'S BUILD IT",
+      text: 'Explore code, art, design and more. Learn with other people who love making games.',
+      action: { label: 'Explore workshops', url: '#events' },
+    },
+    {
+      name: 'Showcase Night',
+      theme: 'yellow',
+      label: 'THE SHOW MUST GO ON',
+      text: 'See what the club has been building, share your experiments and celebrate the community.',
+      action: { label: 'Find a showcase', url: '#events' },
+    },
+  ],
+};
+
 export function Home() {
-  const copy = content.home;
+  const copy = homeCopy;
   const questsSection = useRef<HTMLElement>(null);
   useEffect(() => {
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
@@ -40,21 +80,19 @@ export function Home() {
           <h1 id="hero-heading" aria-label={copy.hero.heading.join(' ')}>
             {copy.hero.heading.map((line, index) => (
               <span className="hero-word" aria-hidden="true" key={index}>
-                {Array.from(characters.segment(line)).map(
-                  ({ segment: letter }, position) => (
-                    <span
-                      className="hero-letter"
-                      style={
-                        {
-                          '--letter-index': Math.min(position, 7),
-                        } as CSSProperties
-                      }
-                      key={position}
-                    >
-                      {letter === ' ' ? '\u00a0' : letter}
-                    </span>
-                  ),
-                )}
+                {splitGraphemes(line).map((letter, position) => (
+                  <span
+                    className="hero-letter"
+                    style={
+                      {
+                        '--letter-index': Math.min(position, 7),
+                      } as CSSProperties
+                    }
+                    key={position}
+                  >
+                    {letter === ' ' ? '\u00a0' : letter}
+                  </span>
+                ))}
               </span>
             ))}
           </h1>

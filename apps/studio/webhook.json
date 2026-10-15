@@ -5,7 +5,7 @@
   "dataset": "production",
   "rule": {
     "on": ["create", "update", "delete"],
-    "filter": "!((coalesce(after()._id, before()._id)) in path(\"drafts.**\")) && coalesce(after()._id, before()._id) in [\"settings\", \"navigation\", \"home\", \"about\", \"team\", \"contact\"]",
+    "filter": "!((coalesce(after()._id, before()._id)) in path(\"drafts.**\")) && !((coalesce(after()._id, before()._id)) in path(\"versions.**\")) && coalesce(after()._id, before()._id) == \"roster\" && coalesce(after()._type, before()._type) == \"roster\"",
     "projection": "{\"ref\": \"main\"}"
   },
   "apiVersion": "v2026-10-01",

@@ -1,9 +1,43 @@
 import { Icon } from './components/Icon';
 import { useRef, useState, type FormEvent } from 'react';
-import { content, contact, contactEndpoint } from './content';
+import { contact, contactEndpoint } from './content';
+
+const formCopy = {
+  heading: 'Send us a message.',
+  introduction:
+    'Tell us what’s on your mind. All fields except the subject are required.',
+  label: 'Contact GCOM',
+  legend: 'Your message to GCOM',
+  nameLabel: 'Your name',
+  emailLabel: 'Email address',
+  emailHelp: 'We’ll use your email to reply to this message.',
+  subjectLabel: 'Subject',
+  optionalLabel: '(optional)',
+  messageLabel: 'Your message',
+  messagePlaceholder: 'Tell us a little about your question or idea…',
+  honeypotLabel: 'Leave this field empty',
+  sendLabel: 'Send message',
+  sendingLabel: 'Sending…',
+  directPrompt: 'Prefer email?',
+  directLabel: 'Email us directly',
+  defaultSubject: 'GCOM enquiry',
+  sending: 'Sending your message…',
+  unavailable:
+    'Message delivery is temporarily unavailable. You can send your message using the email link below.',
+  rateLimited:
+    'Too many messages in a short time. Please try again later, or email us directly.',
+  invalid: 'Please check your name, email, subject and message.',
+  tooLarge: 'Message is too large.',
+  failed:
+    'We couldn’t send your message right now. Your draft is still here. Try again, or use the email link below.',
+  success:
+    'Message sent. Thanks for getting in touch! We’ll reply to the email address you provided.',
+  unreachable:
+    'We couldn’t reach the message service. Your draft is still here. Try again, or use the email link below.',
+};
 
 export function ContactForm() {
-  const copy = content.contact.form;
+  const copy = formCopy;
   const [status, setStatus] = useState<
     'idle' | 'sending' | 'success' | 'error'
   >('idle');

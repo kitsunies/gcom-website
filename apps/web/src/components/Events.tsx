@@ -1,11 +1,23 @@
 import { Icon } from './Icon';
 import { useEffect, useState } from 'react';
-import { content, href, calendar, type EventSummary } from '../content';
+import { href, settings, type EventSummary } from '../content';
 import snapshot from '../../public/data/events.json';
 import { eventDate, isCurrentEvent } from '../event-date';
+const copy = {
+  eyebrow: 'SAVE YOUR SPOT',
+  heading: 'Events & Announcements',
+  calendarLabel: 'Open the Luma calendar',
+  eventLabel: 'View on Luma',
+  emptyHeading: 'The next quest is on its way.',
+  emptyText:
+    'No upcoming events are listed right now. Check the club calendar for the latest updates.',
+  unconnectedHeading: 'Our calendar is getting ready.',
+  unconnectedText:
+    'Once the club calendar is connected, upcoming game jams, workshops and showcases will appear here.',
+  note: 'Event details and registration live on Luma. Times are shown in Melbourne time.',
+};
 export function Events() {
-  const calendar = content.settings.calendarUrl;
-  const copy = content.home.events;
+  const calendar = settings.calendarUrl;
   const [now, setNow] = useState<number | null>(null);
   useEffect(() => {
     setNow(Date.now());
