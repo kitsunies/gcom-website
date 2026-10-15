@@ -843,6 +843,10 @@ p {
   justify-content: center;
   width: 44px;
 }
+.team-social-link .icon {
+  width: var(--s8);
+  height: var(--s8);
+}
 .contact-section {
   padding-bottom: var(--s24);
 }
