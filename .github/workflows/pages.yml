@@ -17,14 +17,15 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: github-pages
-  cancel-in-progress: false
+  group: ${{ github.event_name == 'pull_request' && format('pages-pr-{0}', github.event.pull_request.number) || 'github-pages' }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 jobs:
   build:
     if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' || vars.SANITY_PUBLICATION_ENABLED == 'true'
     runs-on: ubuntu-latest
     outputs:
       dataset: ${{ steps.dataset.outputs.name }}
+      changed: ${{ steps.release.outputs.changed }}
     env:
       ROSTER_SOURCE: ${{ github.event_name == 'pull_request' && 'fixture' || 'sanity' }}
       SANITY_PROJECT_ID: ${{ github.event_name == 'pull_request' && 'dummy1234' || vars.SANITY_PROJECT_ID }}
@@ -54,20 +55,6 @@ jobs:
         env:
           SANITY_READ_TOKEN: ${{ secrets.SANITY_READ_TOKEN }}
         run: npm run sync:roster
-      - run: npm run format:check
-      - run: npm run test:snapshot
-      - name: Typecheck Studio
-        working-directory: apps/studio
-        env:
-          SANITY_STUDIO_PROJECT_ID: ${{ env.SANITY_PROJECT_ID }}
-          SANITY_STUDIO_DATASET: ${{ env.SANITY_DATASET }}
-        run: npm run typecheck
-      - name: Build Studio
-        working-directory: apps/studio
-        env:
-          SANITY_STUDIO_PROJECT_ID: ${{ env.SANITY_PROJECT_ID }}
-          SANITY_STUDIO_DATASET: ${{ env.SANITY_DATASET }}
-        run: npm run build
       - uses: actions/cache@v4
         if: github.event_name != 'pull_request'
         with:
@@ -87,20 +74,49 @@ jobs:
       - name: Require a previous snapshot on sync failure
         if: steps.calendar.outcome == 'failure'
         run: node -e 'if (!require("./apps/web/public/data/events.json").updatedAt) throw new Error("No previous calendar snapshot is available. Preserve the existing release.")'
+      - name: Compare validated release inputs with the live deployment
+        id: release
+        if: vars.SANITY_PUBLICATION_ENABLED == 'true' && github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && env.SANITY_DATASET == 'production'
+        working-directory: apps/web
+        run: npx tsx scripts/deployment-state.ts
+      - run: npm run format:check
+        if: github.event_name == 'push' || steps.release.outputs.changed != 'false'
+      - run: npm run test:snapshot
+        if: github.event_name == 'push' || steps.release.outputs.changed != 'false'
+      - name: Typecheck Studio
+        if: github.event_name == 'push' || steps.release.outputs.changed != 'false'
+        working-directory: apps/studio
+        env:
+          SANITY_STUDIO_PROJECT_ID: ${{ env.SANITY_PROJECT_ID }}
+          SANITY_STUDIO_DATASET: ${{ env.SANITY_DATASET }}
+        run: npm run typecheck
+      - name: Build Studio
+        if: github.event_name == 'push' || steps.release.outputs.changed != 'false'
+        working-directory: apps/studio
+        env:
+          SANITY_STUDIO_PROJECT_ID: ${{ env.SANITY_PROJECT_ID }}
+          SANITY_STUDIO_DATASET: ${{ env.SANITY_DATASET }}
+        run: npm run build
       - name: Build the validated roster snapshot without fetching CMS again
+        if: github.event_name == 'push' || steps.release.outputs.changed != 'false'
         run: npm run build:snapshot
       - run: npx playwright install --with-deps chromium
+        if: github.event_name == 'push' || steps.release.outputs.changed != 'false'
       - run: npm run test:browser
+        if: github.event_name == 'push' || steps.release.outputs.changed != 'false'
       - name: Custom domain
-        if: env.SITE_BASE == '/'
+        if: steps.release.outputs.changed == 'true' && env.SITE_BASE == '/'
         run: node -e 'require("node:fs").writeFileSync("apps/web/dist/CNAME", new URL(process.env.SITE_ORIGIN).hostname + "\n")'
+      - name: Include production state in the checked Pages artifact
+        if: steps.release.outputs.changed == 'true'
+        run: cp apps/web/src/generated/deployment-state.json apps/web/dist/deployment-state.json
       - uses: actions/upload-pages-artifact@v3
-        if: github.event_name != 'pull_request'
+        if: steps.release.outputs.changed == 'true'
         with:
           path: apps/web/dist
   deploy:
     needs: build
-    if: vars.SANITY_PUBLICATION_ENABLED == 'true' && github.ref == 'refs/heads/main' && needs.build.outputs.dataset == 'production'
+    if: vars.SANITY_PUBLICATION_ENABLED == 'true' && github.ref == 'refs/heads/main' && needs.build.outputs.dataset == 'production' && needs.build.outputs.changed == 'true'
     runs-on: ubuntu-latest
     permissions:
       pages: write
