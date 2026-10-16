@@ -21,7 +21,7 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 jobs:
   build:
-    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' || vars.SANITY_PUBLICATION_ENABLED == 'true'
+    if: github.event_name == 'push' || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' || vars.SANITY_PUBLICATION_ENABLED == 'true'
     runs-on: ubuntu-latest
     outputs:
       dataset: ${{ steps.dataset.outputs.name }}
